@@ -78,5 +78,3 @@ This makes ELSA usable directly from a browser link — no download needed.
 **Step 6** — Wait 3-5 minutes then refresh
 
 **Step 7** — You'll see a box saying:
-```
-Your site is live at https://YourUsername.github.io/ELSA-Study-Agent
