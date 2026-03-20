@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ELSA — Elite Learning & Study Agent
+  Copyright (c) 2025 Divyanshu Karn
+  Licensed under CC BY-NC-ND 4.0
+  https://creativecommons.org/licenses/by-nc-nd/4.0/
+  Unauthorized modification, redistribution, or commercial use is prohibited.
+-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ELSA — Elite Learning & Study Agent</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<!-- ===== INTRO ANIMATION ===== -->
+<div id="intro-overlay" class="intro-overlay">
+  <div class="curtain-left" id="curtain-left"></div>
+  <div class="curtain-right" id="curtain-right"></div>
+  <div class="intro-mesh" id="intro-mesh"></div>
+  <div class="intro-particle" id="intro-particle"></div>
+  <div class="intro-logo">
+    <h1 class="intro-title" id="intro-title">ELSA</h1>
+    <p class="intro-subtitle" id="intro-subtitle">Elite Learning &amp; Study Agent</p>
+  </div>
+</div>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen" style="display:none;">
+  <div class="login-bg-pattern"></div>
+  <div class="login-screen">
+    <div class="login-container">
+      <div class="login-logo">ELSA</div>
+      <h1 class="login-title">Who wants to <span>study</span> today?</h1>
+
+      <div class="user-grid" id="user-grid">
+        <!-- User circles inserted here -->
+        <div class="user-circle-wrapper">
+          <div class="user-circle add-user-btn" id="add-user-btn" title="Add new user">
+            <span style="font-size:36px;font-weight:300;">+</span>
+          </div>
+          <div class="user-name">Add User</div>
+        </div>
+      </div>
+
+      <p class="login-footer">Right-click on a user to manage · ELSA v1.0</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PASSWORD MODAL ===== -->
+<div id="password-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width:380px;text-align:center;">
+    <div class="password-icon">🔐</div>
+    <p class="modal-username" id="modal-username">Username</p>
+    <input type="password" id="password-input" class="input-field" placeholder="Enter password" autocomplete="current-password">
+    <div class="modal-actions" style="justify-content:center;">
+      <button id="unlock-btn" class="btn btn-primary">Unlock</button>
+      <button id="cancel-password-btn" class="btn btn-secondary">Cancel</button>
+    </div>
+    <p class="forgot-password" id="forgot-password-link">Forgot Password?</p>
+  </div>
+</div>
+
+<!-- ===== ADD USER MODAL ===== -->
+<div id="add-user-modal" class="modal-overlay">
+  <div class="modal-content rgb-border-modal" style="max-width:400px;">
+    <h2>✨ Create New Profile</h2>
+    <p style="color:var(--text-secondary);font-size:var(--font-size-sm);margin-bottom:var(--spacing-md);">Your study data will be saved privately.</p>
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="new-username-input" class="input-field" placeholder="Enter name (3–20 chars)" maxlength="20" autocomplete="off">
+      <p class="input-hint">Letters and numbers only</p>
+    </div>
+    <div class="modal-actions">
+      <button id="cancel-add-user-btn" class="btn btn-secondary">Cancel</button>
+      <button id="create-user-btn" class="btn btn-primary">Create Profile 🚀</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONTEXT MENU ===== -->
+<div id="context-menu" class="context-menu" style="display:none;">
+  <div class="context-menu-item" data-action="set-password">🔐 Set / Change Password</div>
+  <div class="context-menu-item" data-action="remove-password">🔓 Remove Password</div>
+  <div class="context-menu-item" data-action="change-name">✏️ Change Name</div>
+  <hr style="margin:4px 0;border-color:var(--border-light);">
+  <div class="context-menu-item delete" data-action="delete-user">🗑️ Delete User</div>
+</div>
+
+<!-- ===== DELETE CONFIRMATION MODAL ===== -->
+<div id="delete-confirm-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width:420px;">
+    <h2>⚠️ Delete User</h2>
+    <p style="margin:var(--spacing-sm) 0;">Are you sure you want to delete <strong id="delete-username"></strong>?</p>
+    <p class="warning-text">This will permanently delete ALL study data, goals, subjects, and progress. This cannot be undone.</p>
+    <div class="form-group" style="margin-top:var(--spacing-md);">
+      <label>Type the username to confirm</label>
+      <input type="text" id="delete-confirm-input" class="input-field" placeholder="Type username here..." autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button id="cancel-delete-btn" class="btn btn-secondary">Cancel</button>
+      <button id="confirm-delete-btn" class="btn btn-danger" disabled>Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/user-manager.js"></script>
+<script>
+// ===== INTRO ANIMATION =====
+function runIntroAnimation() {
+  const overlay = document.getElementById('intro-overlay');
+  const particle = document.getElementById('intro-particle');
+  const mesh = document.getElementById('intro-mesh');
+  const title = document.getElementById('intro-title');
+  const subtitle = document.getElementById('intro-subtitle');
+  const curtainL = document.getElementById('curtain-left');
+  const curtainR = document.getElementById('curtain-right');
+
+  // Phase 1: Particle appears
+  setTimeout(() => {
+    particle.style.opacity = '1';
+    particle.style.animation = 'particlePulse 0.4s ease infinite';
+  }, 150);
+
+  // Phase 2: Mesh formation
+  setTimeout(() => {
+    particle.style.opacity = '0';
+    createMeshParticles(mesh);
+    mesh.style.animation = 'meshRotate 1s linear';
+  }, 500);
+
+  // Phase 3: Logo formation
+  setTimeout(() => {
+    mesh.style.opacity = '0';
+    title.style.animation = 'fadeInTitle 0.6s ease forwards';
+  }, 1500);
+
+  // Phase 4: Subtitle
+  setTimeout(() => {
+    subtitle.style.animation = 'fadeInSubtitle 0.5s ease forwards';
+  }, 2300);
+
+  // Phase 5: Curtain reveal
+  setTimeout(() => {
+    curtainL.classList.add('open');
+    curtainR.classList.add('open');
+  }, 3000);
+
+  // Show login
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    const login = document.getElementById('login-screen');
+    login.style.display = 'block';
+    login.style.animation = 'fadeIn 0.3s ease';
+  }, 3550);
+}
+
+function createMeshParticles(mesh) {
+  const count = 14;
+  const radius = 110;
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const tx = Math.cos(angle) * radius;
+    const ty = Math.sin(angle) * radius;
+    const p = document.createElement('div');
+    p.className = 'mesh-particle';
+    p.style.cssText = `--tx:${tx}px;--ty:${ty}px;width:${5+Math.random()*5}px;height:${5+Math.random()*5}px;background:${i%2===0?'var(--primary-blue)':'var(--accent-purple)'};box-shadow:0 0 10px ${i%2===0?'rgba(37,99,235,0.8)':'rgba(124,58,237,0.8)'};`;
+    mesh.appendChild(p);
+  }
+}
+
+window.addEventListener('load', runIntroAnimation);
+
+// ===== LOGIN MANAGER =====
+class LoginManager {
+  constructor() {
+    this.selectedUser = null;
+    this.userGrid = document.getElementById('user-grid');
+    this.init();
+  }
+
+  init() {
+    this.loadUsers();
+    this.bindEvents();
+  }
+
+  loadUsers() {
+    // Remove existing user circles (not add-btn)
+    const existing = this.userGrid.querySelectorAll('.user-circle-wrapper:not(:last-child)');
+    existing.forEach(el => el.remove());
+
+    const users = storage.getAllUsers();
+    const addBtn = this.userGrid.querySelector('.user-circle-wrapper:last-child');
+
+    users.forEach(u => {
+      const wrapper = this.createUserCircle(u);
+      this.userGrid.insertBefore(wrapper, addBtn);
+    });
+  }
+
+  createUserCircle(u) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'user-circle-wrapper';
+
+    const circle = document.createElement('div');
+    circle.className = 'user-circle';
+    circle.style.background = utils.generateGradient(u.username);
+    circle.innerHTML = `<span>${u.username.charAt(0).toUpperCase()}</span>`;
+    if (u.hasPassword) {
+      circle.setAttribute('title', `${u.username} (Password protected)`);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'user-name';
+    name.textContent = u.username;
+
+    wrapper.appendChild(circle);
+    wrapper.appendChild(name);
+
+    circle.addEventListener('click', () => this.handleUserClick(u));
+    circle.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      this.showContextMenu(e, u);
+    });
+
+    return wrapper;
+  }
+
+  handleUserClick(u) {
+    this.selectedUser = u;
+    const profile = storage.loadJSONForUser(u.username, 'profile');
+    if (profile.hasPassword && profile.passwordHash) {
+      document.getElementById('modal-username').textContent = u.username;
+      document.getElementById('password-input').value = '';
+      document.getElementById('password-modal').classList.add('active');
+      setTimeout(() => document.getElementById('password-input').focus(), 300);
+    } else {
+      this.loginUser(u.username);
+    }
+  }
+
+  loginUser(username) {
+    auth.login(username);
+    userManager.updateLastLogin(username);
+    storage.init(username);
+    window.location.href = CONFIG.PAGES.DASHBOARD;
+  }
+
+  showContextMenu(e, u) {
+    this.selectedUser = u;
+    const menu = document.getElementById('context-menu');
+    menu.style.display = 'block';
+    menu.style.left = `${Math.min(e.pageX, window.innerWidth - 220)}px`;
+    menu.style.top = `${Math.min(e.pageY, window.innerHeight - 160)}px`;
+    setTimeout(() => document.addEventListener('click', () => this.hideContextMenu(), { once: true }), 100);
+  }
+
+  hideContextMenu() {
+    document.getElementById('context-menu').style.display = 'none';
+  }
+
+  bindEvents() {
+    // Add user
+    document.getElementById('add-user-btn').addEventListener('click', () => {
+      document.getElementById('add-user-modal').classList.add('active');
+      setTimeout(() => document.getElementById('new-username-input').focus(), 300);
+    });
+
+    document.getElementById('create-user-btn').addEventListener('click', () => this.createUser());
+    document.getElementById('cancel-add-user-btn').addEventListener('click', () => {
+      document.getElementById('add-user-modal').classList.remove('active');
+      document.getElementById('new-username-input').value = '';
+    });
+
+    document.getElementById('new-username-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.createUser();
+    });
+
+    // Password modal
+    document.getElementById('unlock-btn').addEventListener('click', () => this.verifyPassword());
+    document.getElementById('cancel-password-btn').addEventListener('click', () => {
+      document.getElementById('password-modal').classList.remove('active');
+    });
+    document.getElementById('password-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.verifyPassword();
+    });
+
+    document.getElementById('forgot-password-link').addEventListener('click', () => {
+      if (this.selectedUser) {
+        utils.showToast('Contact your local admin (yourself!) to reset data 😅', 'info');
+      }
+    });
+
+    // Context menu
+    document.getElementById('context-menu').querySelectorAll('.context-menu-item').forEach(item => {
+      item.addEventListener('click', () => this.handleContextAction(item.dataset.action));
+    });
+
+    // Delete confirm
+    document.getElementById('delete-confirm-input').addEventListener('input', (e) => {
+      const btn = document.getElementById('confirm-delete-btn');
+      btn.disabled = e.target.value.trim() !== (this.selectedUser?.username || '');
+    });
+
+    document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+      if (this.selectedUser) {
+        userManager.deleteUser(this.selectedUser.username);
+        document.getElementById('delete-confirm-modal').classList.remove('active');
+        this.loadUsers();
+        utils.showToast(`User "${this.selectedUser.username}" deleted.`, 'info');
+        this.selectedUser = null;
+      }
+    });
+
+    document.getElementById('cancel-delete-btn').addEventListener('click', () => {
+      document.getElementById('delete-confirm-modal').classList.remove('active');
+    });
+  }
+
+  createUser() {
+    const val = document.getElementById('new-username-input').value.trim();
+    const error = utils.validateUsername(val);
+    if (error) { utils.showToast(error, 'error'); return; }
+    if (storage.userExists(val)) { utils.showToast('Username already taken', 'error'); return; }
+
+    try {
+      userManager.createUser(val);
+      document.getElementById('add-user-modal').classList.remove('active');
+      document.getElementById('new-username-input').value = '';
+      this.loginUser(val);
+    } catch(e) {
+      utils.showToast(e.message, 'error');
+    }
+  }
+
+  verifyPassword() {
+    const password = document.getElementById('password-input').value;
+    const profile = storage.loadJSONForUser(this.selectedUser.username, 'profile');
+    if (auth.verifyPassword(password, profile.passwordHash)) {
+      document.getElementById('password-modal').classList.remove('active');
+      this.loginUser(this.selectedUser.username);
+    } else {
+      utils.showToast('Incorrect password', 'error');
+      document.getElementById('password-input').value = '';
+      document.getElementById('password-input').focus();
+    }
+  }
+
+  handleContextAction(action) {
+    this.hideContextMenu();
+    if (!this.selectedUser) return;
+
+    switch(action) {
+      case 'set-password': {
+        const pw = prompt(`Set password for "${this.selectedUser.username}" (min 4 chars):`);
+        if (pw === null) return;
+        const err = utils.validatePassword(pw);
+        if (err) { utils.showToast(err, 'error'); return; }
+        userManager.setPassword(this.selectedUser.username, pw);
+        storage.updateUserInManifest(this.selectedUser.username, { hasPassword: true });
+        this.loadUsers();
+        utils.showToast('Password set successfully! 🔐', 'success');
+        break;
+      }
+      case 'remove-password': {
+        if (confirm(`Remove password for "${this.selectedUser.username}"?`)) {
+          userManager.removePassword(this.selectedUser.username);
+          this.loadUsers();
+          utils.showToast('Password removed.', 'info');
+        }
+        break;
+      }
+      case 'change-name': {
+        const newName = prompt('Enter new username:', this.selectedUser.username);
+        if (!newName || newName.trim() === this.selectedUser.username) return;
+        try {
+          userManager.renameUser(this.selectedUser.username, newName.trim());
+          this.loadUsers();
+          utils.showToast('Username changed!', 'success');
+        } catch(e) {
+          utils.showToast(e.message, 'error');
+        }
+        break;
+      }
+      case 'delete-user': {
+        document.getElementById('delete-username').textContent = this.selectedUser.username;
+        document.getElementById('delete-confirm-input').value = '';
+        document.getElementById('confirm-delete-btn').disabled = true;
+        document.getElementById('delete-confirm-modal').classList.add('active');
+        break;
+      }
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.loginManager = new LoginManager();
+});
+</script>
+</body>
+</html>

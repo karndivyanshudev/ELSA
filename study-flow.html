@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ELSA — Elite Learning & Study Agent
+  Copyright (c) 2025 Divyanshu Karn
+  Licensed under CC BY-NC-ND 4.0
+  https://creativecommons.org/licenses/by-nc-nd/4.0/
+  Unauthorized modification, redistribution, or commercial use is prohibited.
+-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Flow — ELSA</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .flow-filters {
+      display: flex; gap: var(--spacing-sm); flex-wrap: wrap;
+      margin-bottom: var(--spacing-lg);
+      padding: var(--spacing-md); background: var(--bg-surface);
+      border-radius: var(--radius-md); border: 1px solid var(--border-light);
+    }
+    .flow-table-container { overflow-x: auto; }
+    .flow-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .flow-table th {
+      padding: 10px 14px; text-align: left;
+      background: var(--bg-secondary); font-size: var(--font-size-xs);
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--text-secondary); border-bottom: 1px solid var(--border-light);
+      white-space: nowrap;
+    }
+    .flow-table td { padding: 12px 14px; border-bottom: 1px solid var(--border-light); vertical-align: top; font-size: var(--font-size-sm); }
+    .flow-table tr:last-child td { border-bottom: none; }
+    .flow-table tr:hover td { background: var(--bg-secondary); }
+    .flow-table textarea {
+      width: 100%; border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+      padding: 6px 8px; font-size: var(--font-size-sm); font-family: var(--font-family);
+      background: var(--bg-primary); resize: vertical; min-height: 60px; outline: none;
+      line-height: 1.5;
+    }
+    .flow-table textarea:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+    .flow-row-num { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+    .add-flow-btn-row { padding: var(--spacing-md); border-top: 1px solid var(--border-light); background: var(--bg-secondary); border-radius: 0 0 var(--radius-md) var(--radius-md); }
+    .flow-badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full); font-size: 11px; font-weight: 500; }
+    .situation-col { min-width: 200px; }
+    .solution-col { min-width: 220px; }
+    .delete-flow-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 4px; font-size: 14px; }
+    .delete-flow-btn:hover { color: var(--danger-red); background: rgba(239,68,68,0.1); }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">ELSA<span>Study Agent</span></div>
+    <nav class="nav-menu">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a href="subjects.html" class="nav-item"><span class="nav-icon">📚</span>Subjects</a>
+      <a href="study-flow.html" class="nav-item active"><span class="nav-icon">🔄</span>Study Flow</a>
+      <a href="analytics.html" class="nav-item"><span class="nav-icon">📊</span>Analytics</a>
+      <a href="todo.html" class="nav-item"><span class="nav-icon">✅</span>To-Do List</a>
+      <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user-btn">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div><div class="sidebar-user-name" id="sidebar-username">User</div><div class="sidebar-user-role">Logout</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Study Flow</h1>
+          <p>Track situations you face while studying and their solutions</p>
+        </div>
+        <div class="page-header-actions">
+          <button id="add-flow-btn" class="btn btn-primary">+ Add Entry</button>
+          <button id="export-flow-btn" class="btn btn-secondary">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flow-filters">
+        <div class="filter-group">
+          <label>Goal:</label>
+          <select id="filter-goal" class="select-field" style="min-width:130px;">
+            <option value="">All Goals</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Subject:</label>
+          <select id="filter-subject" class="select-field" style="min-width:130px;">
+            <option value="">All Subjects</option>
+          </select>
+        </div>
+        <div class="filter-group" style="margin-left:auto;">
+          <input type="text" id="search-flow" class="input-field" placeholder="🔍 Search..." style="min-width:200px;">
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="flow-table-container">
+          <table class="flow-table">
+            <thead>
+              <tr>
+                <th style="width:40px;">#</th>
+                <th style="width:100px;">Date</th>
+                <th style="width:110px;">Goal</th>
+                <th style="width:110px;">Subject</th>
+                <th style="width:110px;">Topic</th>
+                <th class="situation-col">Situation / Problem</th>
+                <th class="solution-col">Solution / Notes</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="flow-tbody">
+              <!-- rows rendered here -->
+            </tbody>
+          </table>
+        </div>
+        <div class="add-flow-btn-row">
+          <button class="btn btn-ghost btn-sm" id="add-row-inline-btn">+ Add Row</button>
+        </div>
+      </div>
+
+      <div id="empty-flow" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">📝</div>
+        <h3>No Study Flow Entries</h3>
+        <p>Record situations you face while studying and how you solved them.</p>
+        <button class="btn btn-primary" style="margin-top:var(--spacing-md);" onclick="document.getElementById('add-flow-btn').click()">Add First Entry</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add Flow Modal -->
+<div id="add-flow-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width:580px;">
+    <h2>📝 Add Study Flow Entry</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Goal</label>
+        <select id="flow-goal-select" class="select-field"></select>
+      </div>
+      <div class="form-group">
+        <label>Subject</label>
+        <select id="flow-subject-select" class="select-field" disabled></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Topic <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+      <select id="flow-topic-select" class="select-field" disabled></select>
+    </div>
+    <div class="form-group">
+      <label>Situation / Problem *</label>
+      <textarea id="flow-situation" class="textarea-field" placeholder="What challenge or situation did you face?" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Solution / Notes *</label>
+      <textarea id="flow-solution" class="textarea-field" placeholder="How did you solve it? What did you learn?" rows="4"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button id="cancel-flow-btn" class="btn btn-secondary">Cancel</button>
+      <button id="save-flow-btn" class="btn btn-primary">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script>
+class StudyFlowManager {
+  constructor() {
+    if (!auth.requireAuth()) return;
+    storage.init(auth.getCurrentUser());
+    this._filterGoal = '';
+    this._filterSubject = '';
+    this._search = '';
+    this._init();
+    this._setupSidebar();
+  }
+
+  _setupSidebar() {
+    const p = storage.loadJSON('profile');
+    document.getElementById('sidebar-username').textContent = p.username;
+    document.getElementById('sidebar-avatar').textContent = p.username.charAt(0).toUpperCase();
+    document.getElementById('sidebar-user-btn').addEventListener('click', () => { if(confirm('Logout?')) auth.logout(); });
+  }
+
+  _init() {
+    this._populateFilters();
+    this._render();
+    this._bindEvents();
+  }
+
+  _populateFilters() {
+    const goals = storage.loadJSON('goals');
+    const goalSel = document.getElementById('filter-goal');
+    goalSel.innerHTML = '<option value="">All Goals</option>';
+    goals.goals.forEach(g => goalSel.innerHTML += `<option value="${g.name}">${g.name}</option>`);
+
+    const flowGoal = document.getElementById('flow-goal-select');
+    flowGoal.innerHTML = '<option value="">— Select Goal —</option>';
+    goals.goals.forEach(g => flowGoal.innerHTML += `<option value="${g.name}">${g.name}</option>`);
+  }
+
+  _getFlows() {
+    const data = storage.loadJSON('study-flow');
+    let flows = data.flows || [];
+    if (this._filterGoal) flows = flows.filter(f => f.goal === this._filterGoal);
+    if (this._filterSubject) flows = flows.filter(f => f.subject === this._filterSubject);
+    if (this._search) {
+      const q = this._search.toLowerCase();
+      flows = flows.filter(f =>
+        (f.situation||'').toLowerCase().includes(q) ||
+        (f.solution||'').toLowerCase().includes(q) ||
+        (f.topic||'').toLowerCase().includes(q)
+      );
+    }
+    return flows.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
+
+  _render() {
+    const flows = this._getFlows();
+    const tbody = document.getElementById('flow-tbody');
+    const empty = document.getElementById('empty-flow');
+    const all = storage.loadJSON('study-flow').flows || [];
+
+    if (!all.length) {
+      empty.style.display = 'block';
+      tbody.innerHTML = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    if (!flows.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:var(--spacing-xl);color:var(--text-muted);">No entries match your filters</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = flows.map((f, i) => `
+      <tr data-fid="${f.id}">
+        <td class="flow-row-num">${i + 1}</td>
+        <td style="white-space:nowrap;font-size:11px;">${utils.formatDate(f.date)}</td>
+        <td><span class="flow-badge" style="background:rgba(37,99,235,0.1);color:var(--primary-blue);">${f.goal||'—'}</span></td>
+        <td style="font-size:var(--font-size-xs);">${f.subject||'—'}</td>
+        <td style="font-size:var(--font-size-xs);color:var(--text-muted);">${f.topic||'—'}</td>
+        <td class="situation-col">
+          <textarea class="flow-edit" data-field="situation" data-fid="${f.id}">${this._esc(f.situation||'')}</textarea>
+        </td>
+        <td class="solution-col">
+          <textarea class="flow-edit" data-field="solution" data-fid="${f.id}">${this._esc(f.solution||'')}</textarea>
+        </td>
+        <td>
+          <button class="delete-flow-btn" data-fid="${f.id}" title="Delete">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+
+    // Bind inline edit
+    document.querySelectorAll('.flow-edit').forEach(ta => {
+      ta.addEventListener('change', (e) => {
+        const fid = e.target.dataset.fid;
+        const field = e.target.dataset.field;
+        const data = storage.loadJSON('study-flow');
+        const flow = data.flows.find(f => f.id === fid);
+        if (flow) {
+          flow[field] = e.target.value;
+          flow.updatedAt = new Date().toISOString();
+          storage.saveJSON('study-flow', data);
+        }
+      });
+    });
+
+    document.querySelectorAll('.delete-flow-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm('Delete this entry?')) return;
+        const data = storage.loadJSON('study-flow');
+        data.flows = data.flows.filter(f => f.id !== btn.dataset.fid);
+        storage.saveJSON('study-flow', data);
+        this._render();
+      });
+    });
+  }
+
+  _esc(str) { return str.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  _bindEvents() {
+    document.getElementById('filter-goal').addEventListener('change', (e) => {
+      this._filterGoal = e.target.value;
+      this._filterSubject = '';
+      this._populateSubjectFilter(e.target.value);
+      this._render();
+    });
+
+    document.getElementById('filter-subject').addEventListener('change', (e) => {
+      this._filterSubject = e.target.value;
+      this._render();
+    });
+
+    document.getElementById('search-flow').addEventListener('input', utils.debounce((e) => {
+      this._search = e.target.value.trim();
+      this._render();
+    }, 300));
+
+    const openModal = () => {
+      this._populateFilters();
+      document.getElementById('flow-situation').value = '';
+      document.getElementById('flow-solution').value = '';
+      document.getElementById('flow-goal-select').value = '';
+      document.getElementById('flow-subject-select').innerHTML = '<option value="">— Select Subject —</option>';
+      document.getElementById('flow-subject-select').disabled = true;
+      document.getElementById('flow-topic-select').innerHTML = '<option value="">No specific topic</option>';
+      document.getElementById('flow-topic-select').disabled = true;
+      document.getElementById('add-flow-modal').classList.add('active');
+    };
+
+    document.getElementById('add-flow-btn').addEventListener('click', openModal);
+    document.getElementById('add-row-inline-btn').addEventListener('click', openModal);
+    document.getElementById('cancel-flow-btn').addEventListener('click', () => document.getElementById('add-flow-modal').classList.remove('active'));
+
+    document.getElementById('flow-goal-select').addEventListener('change', (e) => {
+      const subjects = storage.loadJSON('subjects').subjects.filter(s => s.goal === e.target.value);
+      const sel = document.getElementById('flow-subject-select');
+      sel.innerHTML = '<option value="">— Select Subject —</option>';
+      subjects.forEach(s => sel.innerHTML += `<option value="${s.name}">${s.name}</option>`);
+      sel.disabled = !subjects.length;
+      document.getElementById('flow-topic-select').disabled = true;
+    });
+
+    document.getElementById('flow-subject-select').addEventListener('change', (e) => {
+      const goal = document.getElementById('flow-goal-select').value;
+      const topics = storage.loadJSON('topics').topics.filter(t => t.goal === goal && t.subject === e.target.value);
+      const sel = document.getElementById('flow-topic-select');
+      sel.innerHTML = '<option value="">No specific topic</option>';
+      topics.forEach(t => sel.innerHTML += `<option value="${t.name}">${t.name}</option>`);
+      sel.disabled = false;
+    });
+
+    document.getElementById('save-flow-btn').addEventListener('click', () => {
+      const goal = document.getElementById('flow-goal-select').value;
+      const subject = document.getElementById('flow-subject-select').value;
+      const topic = document.getElementById('flow-topic-select').value;
+      const situation = document.getElementById('flow-situation').value.trim();
+      const solution = document.getElementById('flow-solution').value.trim();
+
+      if (!situation || !solution) { utils.showToast('Fill in both Situation and Solution', 'warning'); return; }
+
+      const data = storage.loadJSON('study-flow');
+      data.flows.push({
+        id: utils.generateUUID(),
+        date: utils.getCurrentDate(),
+        goal: goal || null,
+        subject: subject || null,
+        topic: topic || null,
+        situation,
+        solution,
+        createdAt: new Date().toISOString()
+      });
+      storage.saveJSON('study-flow', data);
+      document.getElementById('add-flow-modal').classList.remove('active');
+      this._render();
+      utils.showToast('Entry saved!', 'success');
+    });
+
+    document.getElementById('export-flow-btn').addEventListener('click', () => {
+      const flows = storage.loadJSON('study-flow').flows;
+      if (!flows.length) { utils.showToast('No entries to export', 'warning'); return; }
+      const csv = 'Date,Goal,Subject,Topic,Situation,Solution\n' +
+        flows.map(f => [f.date,f.goal,f.subject,f.topic,f.situation,f.solution].map(v => utils.csvEscape(v||'')).join(',')).join('\n');
+      utils.downloadFile(`ELSA_StudyFlow_${utils.getCurrentDate()}.csv`, csv, 'text/csv');
+    });
+  }
+
+  _populateSubjectFilter(goalName) {
+    const subjects = storage.loadJSON('subjects').subjects.filter(s => s.goal === goalName);
+    const sel = document.getElementById('filter-subject');
+    sel.innerHTML = '<option value="">All Subjects</option>';
+    subjects.forEach(s => sel.innerHTML += `<option value="${s.name}">${s.name}</option>`);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => new StudyFlowManager());
+</script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ELSA — Elite Learning & Study Agent
+  Copyright (c) 2025 Divyanshu Karn
+  Licensed under CC BY-NC-ND 4.0
+  https://creativecommons.org/licenses/by-nc-nd/4.0/
+  Unauthorized modification, redistribution, or commercial use is prohibited.
+-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — ELSA</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/charts.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .analytics-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-xl); }
+    .analytics-charts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-xl); }
+    .analytics-charts .full-width { grid-column: 1 / -1; }
+    .chart-card { background: var(--bg-surface); border-radius: var(--radius-lg); padding: var(--spacing-lg); border: 1px solid var(--border-light); }
+    .chart-card h3 { font-size: var(--font-size-base); font-weight: 600; margin-bottom: var(--spacing-md); }
+    .sessions-log { max-height: 360px; overflow-y: auto; }
+    .session-row { display: flex; gap: var(--spacing-sm); align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-light); font-size: var(--font-size-sm); }
+    .session-row:last-child { border-bottom: none; }
+    .session-date { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); min-width: 80px; }
+    .session-goal-badge { flex-shrink: 0; }
+    .session-subject { flex: 1; font-weight: 500; }
+    .session-duration { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--primary-blue); }
+    .goal-breakdown-list { display: flex; flex-direction: column; gap: 10px; }
+    .goal-bar-row { display: flex; flex-direction: column; gap: 4px; }
+    .goal-bar-label { display: flex; justify-content: space-between; font-size: var(--font-size-xs); }
+    .goal-bar-bg { background: var(--bg-secondary); border-radius: 4px; height: 8px; overflow: hidden; }
+    .goal-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+    @media (max-width: 900px) { .analytics-charts { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">ELSA<span>Study Agent</span></div>
+    <nav class="nav-menu">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a href="subjects.html" class="nav-item"><span class="nav-icon">📚</span>Subjects</a>
+      <a href="study-flow.html" class="nav-item"><span class="nav-icon">🔄</span>Study Flow</a>
+      <a href="analytics.html" class="nav-item active"><span class="nav-icon">📊</span>Analytics</a>
+      <a href="todo.html" class="nav-item"><span class="nav-icon">✅</span>To-Do List</a>
+      <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user-btn">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div><div class="sidebar-user-name" id="sidebar-username">User</div><div class="sidebar-user-role">Logout</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Analytics</h1>
+          <p>Visualize your study patterns and progress</p>
+        </div>
+        <div class="page-header-actions">
+          <select id="view-period" class="select-field" style="min-width:130px;">
+            <option value="7">Last 7 Days</option>
+            <option value="14">Last 14 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="weekly">Weekly (8 wks)</option>
+            <option value="monthly">Monthly (6 mo)</option>
+          </select>
+          <select id="filter-goal-analytics" class="select-field" style="min-width:120px;">
+            <option value="">All Goals</option>
+          </select>
+          <button id="export-csv-btn" class="btn btn-secondary">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="analytics-stats" id="analytics-stats">
+        <div class="stat-card"><div class="stat-card-value" id="stat-total-hrs">0h</div><div class="stat-card-label">Total Study Time</div></div>
+        <div class="stat-card"><div class="stat-card-value" id="stat-avg-daily">0h</div><div class="stat-card-label">Daily Average</div></div>
+        <div class="stat-card"><div class="stat-card-value" id="stat-sessions">0</div><div class="stat-card-label">Total Sessions</div></div>
+        <div class="stat-card"><div class="stat-card-value" id="stat-streak-a">0🔥</div><div class="stat-card-label">Current Streak</div></div>
+        <div class="stat-card"><div class="stat-card-value" id="stat-best-day">—</div><div class="stat-card-label">Best Day</div></div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="analytics-charts">
+        <!-- Bar Chart -->
+        <div class="chart-card full-width">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md);">
+            <h3 id="bar-chart-title">Daily Study Hours (Last 7 Days)</h3>
+            <div style="display:flex;gap:var(--spacing-sm);font-size:var(--font-size-xs);color:var(--text-muted);">
+              <span>🔴 Below target</span><span>🟢 On target</span><span>🔵 Exceeded</span>
+            </div>
+          </div>
+          <canvas id="main-bar-chart" height="180" style="max-width:100%;"></canvas>
+        </div>
+
+        <!-- Pie: Subject Breakdown -->
+        <div class="chart-card">
+          <h3>Subject Breakdown</h3>
+          <div style="display:flex;justify-content:center;">
+            <canvas id="subject-pie-chart" width="260" height="260"></canvas>
+          </div>
+          <div class="chart-legend" id="subject-legend"></div>
+        </div>
+
+        <!-- Goal Breakdown Bars -->
+        <div class="chart-card">
+          <h3>By Goal</h3>
+          <div class="goal-breakdown-list" id="goal-breakdown"></div>
+        </div>
+
+        <!-- Recent Sessions Log -->
+        <div class="chart-card full-width">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-md);">
+            <h3>Session Log</h3>
+            <span id="session-count-label" style="font-size:var(--font-size-xs);color:var(--text-muted);"></span>
+          </div>
+          <div class="sessions-log" id="sessions-log"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/analytics-engine.js"></script>
+<script>
+class AnalyticsPage {
+  constructor() {
+    if (!auth.requireAuth()) return;
+    storage.init(auth.getCurrentUser());
+    this._period = '7';
+    this._goalFilter = '';
+    this._init();
+    this._setupSidebar();
+  }
+
+  _setupSidebar() {
+    const p = storage.loadJSON('profile');
+    document.getElementById('sidebar-username').textContent = p.username;
+    document.getElementById('sidebar-avatar').textContent = p.username.charAt(0).toUpperCase();
+    document.getElementById('sidebar-user-btn').addEventListener('click', () => { if(confirm('Logout?')) auth.logout(); });
+  }
+
+  _init() {
+    this._populateGoalFilter();
+    this._render();
+    this._bindEvents();
+  }
+
+  _populateGoalFilter() {
+    const goals = storage.loadJSON('goals');
+    const sel = document.getElementById('filter-goal-analytics');
+    sel.innerHTML = '<option value="">All Goals</option>';
+    goals.goals.forEach(g => sel.innerHTML += `<option value="${g.name}">${g.name}</option>`);
+  }
+
+  _getDateRange() {
+    const p = this._period;
+    const today = utils.getCurrentDate();
+    if (p === 'weekly' || p === 'monthly') return { start: null, end: today, mode: p };
+    const days = parseInt(p);
+    const dates = utils.getLastNDays(days);
+    return { start: dates[0], end: today, mode: 'daily', days };
+  }
+
+  _getSessions() {
+    const all = storage.loadJSON('study-data').sessions.filter(s => s.completed);
+    if (this._goalFilter) return all.filter(s => s.goal === this._goalFilter);
+    return all;
+  }
+
+  _render() {
+    const sessions = this._getSessions();
+    const range = this._getDateRange();
+    const settings = storage.loadJSON('settings');
+    const target = settings.targets || { dailyMin: 5, dailyMax: 10 };
+
+    // Filter sessions by date range
+    let filteredSessions = sessions;
+    if (range.start) filteredSessions = sessions.filter(s => s.date >= range.start && s.date <= range.end);
+
+    // Stats
+    const totalMin = filteredSessions.reduce((s, se) => s + (se.duration||0), 0);
+    const uniqueDays = new Set(filteredSessions.map(s => s.date)).size;
+    const avgMin = uniqueDays ? totalMin / uniqueDays : 0;
+    const streak = analyticsEngine.getCurrentStreak(sessions);
+    const best = analyticsEngine.getBestDay(sessions);
+
+    document.getElementById('stat-total-hrs').textContent = utils.formatDuration(totalMin);
+    document.getElementById('stat-avg-daily').textContent = `${(avgMin/60).toFixed(1)}h`;
+    document.getElementById('stat-sessions').textContent = filteredSessions.length;
+    document.getElementById('stat-streak-a').textContent = `${streak}🔥`;
+    document.getElementById('stat-best-day').textContent = best.date ? `${(best.minutes/60).toFixed(1)}h` : '—';
+
+    // Bar chart
+    this._renderBarChart(sessions, range, target);
+
+    // Subject pie
+    this._renderSubjectPie(filteredSessions);
+
+    // Goal breakdown
+    this._renderGoalBreakdown(filteredSessions, totalMin);
+
+    // Session log
+    this._renderSessionLog(filteredSessions);
+  }
+
+  _renderBarChart(sessions, range, target) {
+    const canvas = document.getElementById('main-bar-chart');
+    canvas.width = canvas.parentElement.offsetWidth || 800;
+
+    if (range.mode === 'daily') {
+      document.getElementById('bar-chart-title').textContent = `Daily Study Hours (Last ${range.days} Days)`;
+      let dailyData;
+      if (this._goalFilter) {
+        dailyData = analyticsEngine.getDailyData(sessions, range.days);
+      } else {
+        dailyData = analyticsEngine.getDailyData(sessions, range.days);
+      }
+      charts.renderBarChart('main-bar-chart', dailyData, target.dailyMin, target.dailyMax);
+    } else if (range.mode === 'weekly') {
+      document.getElementById('bar-chart-title').textContent = 'Weekly Study Hours (Last 8 Weeks)';
+      const weeklyData = analyticsEngine.getWeeklyData(sessions, 8);
+      charts.renderBarChart('main-bar-chart', weeklyData, target.dailyMin * 7, target.dailyMax * 7);
+    } else if (range.mode === 'monthly') {
+      document.getElementById('bar-chart-title').textContent = 'Monthly Study Hours (Last 6 Months)';
+      const monthlyData = analyticsEngine.getMonthlyData(sessions, 6);
+      charts.renderBarChart('main-bar-chart', monthlyData, target.dailyMin * 30, target.dailyMax * 30);
+    }
+  }
+
+  _renderSubjectPie(sessions) {
+    const breakdown = analyticsEngine.getSubjectBreakdown(sessions, '2000-01-01', utils.getCurrentDate());
+    if (!breakdown.length) {
+      charts.renderPieChart('subject-pie-chart', [1], ['No data'], ['#E2E8F0']);
+      document.getElementById('subject-legend').innerHTML = '';
+      return;
+    }
+    const colors = breakdown.map((_, i) => ['#2563EB','#7C3AED','#10B981','#F59E0B','#EF4444','#06B6D4','#EC4899'][i % 7]);
+    charts.renderPieChart('subject-pie-chart', breakdown.map(b => b.minutes), breakdown.map(b => b.subject), colors);
+    document.getElementById('subject-legend').innerHTML = breakdown.map((b, i) => `
+      <div class="chart-legend-item">
+        <div class="chart-legend-color" style="background:${colors[i]};"></div>
+        <span>${b.subject} (${b.hours}h)</span>
+      </div>
+    `).join('');
+  }
+
+  _renderGoalBreakdown(sessions, totalMin) {
+    const breakdown = analyticsEngine.getGoalBreakdown(sessions, '2000-01-01', utils.getCurrentDate());
+    const container = document.getElementById('goal-breakdown');
+    if (!breakdown.length) { container.innerHTML = '<p style="color:var(--text-muted);font-size:var(--font-size-sm);">No data yet</p>'; return; }
+    const colors = ['#2563EB','#7C3AED','#10B981','#F59E0B','#EF4444'];
+    container.innerHTML = breakdown.map((b, i) => {
+      const pct = totalMin ? Math.round((b.minutes / totalMin) * 100) : 0;
+      return `
+        <div class="goal-bar-row">
+          <div class="goal-bar-label">
+            <span style="font-weight:500;">${b.goal}</span>
+            <span style="color:var(--text-muted);">${b.hours}h (${pct}%)</span>
+          </div>
+          <div class="goal-bar-bg">
+            <div class="goal-bar-fill" style="width:${pct}%;background:${colors[i%colors.length]};"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  _renderSessionLog(sessions) {
+    const sorted = [...sessions].sort((a,b) => b.date.localeCompare(a.date)).slice(0, 50);
+    const container = document.getElementById('sessions-log');
+    document.getElementById('session-count-label').textContent = `Showing ${Math.min(50, sessions.length)} of ${sessions.length} sessions`;
+    if (!sorted.length) {
+      container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:var(--spacing-lg);">No sessions yet. Start studying!</p>';
+      return;
+    }
+    container.innerHTML = sorted.map(s => `
+      <div class="session-row">
+        <span class="session-date">${utils.formatDate(s.date)}</span>
+        <span class="session-goal-badge"><span class="badge badge-blue">${s.goal||'?'}</span></span>
+        <span class="session-subject">${s.subject||'—'}${s.topic ? ` <span style="color:var(--text-muted);font-weight:400;">/ ${s.topic}</span>` : ''}</span>
+        <span class="session-duration">${utils.formatDuration(s.duration||0)}</span>
+      </div>
+    `).join('');
+  }
+
+  _bindEvents() {
+    document.getElementById('view-period').addEventListener('change', (e) => {
+      this._period = e.target.value;
+      this._render();
+    });
+
+    document.getElementById('filter-goal-analytics').addEventListener('change', (e) => {
+      this._goalFilter = e.target.value;
+      this._render();
+    });
+
+    document.getElementById('export-csv-btn').addEventListener('click', () => {
+      const sessions = this._getSessions();
+      if (!sessions.length) { utils.showToast('No sessions to export', 'warning'); return; }
+      const csv = analyticsEngine.exportToCSV(sessions, auth.getCurrentUser());
+      utils.downloadFile(`ELSA_StudyData_${utils.getCurrentDate()}.csv`, csv, 'text/csv');
+      utils.showToast('CSV exported!', 'success');
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => new AnalyticsPage());
+</script>
+</body>
+</html>

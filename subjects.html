@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ELSA — Elite Learning & Study Agent
+  Copyright (c) 2025 Divyanshu Karn
+  Licensed under CC BY-NC-ND 4.0
+  https://creativecommons.org/licenses/by-nc-nd/4.0/
+  Unauthorized modification, redistribution, or commercial use is prohibited.
+-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subjects — ELSA</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .subjects-grid { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+    .goal-block { border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-surface); }
+    .goal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(124,58,237,0.06));
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+    }
+    .goal-header-left { display: flex; align-items: center; gap: var(--spacing-md); }
+    .goal-icon { width: 40px; height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: white; flex-shrink: 0; }
+    .goal-name { font-family: var(--font-heading); font-size: var(--font-size-lg); font-weight: 600; }
+    .goal-meta { font-size: var(--font-size-xs); color: var(--text-muted); margin-top: 2px; }
+    .goal-body { padding: var(--spacing-md) var(--spacing-lg); }
+    .subjects-list { display: flex; flex-direction: column; gap: 8px; }
+    .subject-row {
+      display: flex; align-items: center; gap: var(--spacing-sm);
+      padding: 10px var(--spacing-md);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      background: var(--bg-primary);
+      transition: all var(--transition-fast);
+    }
+    .subject-row:hover { border-color: var(--border-medium); background: var(--bg-secondary); }
+    .subject-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .subject-name { flex: 1; font-weight: 500; font-size: var(--font-size-sm); }
+    .subject-topics-count { font-size: var(--font-size-xs); color: var(--text-muted); }
+    .topics-mini { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .topic-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: var(--radius-full);
+      background: var(--bg-secondary); color: var(--text-secondary);
+      font-size: 11px; font-weight: 500;
+      border: 1px solid var(--border-light);
+    }
+    .topic-chip .remove-topic { cursor: pointer; opacity: 0.5; font-size: 10px; line-height: 1; }
+    .topic-chip .remove-topic:hover { opacity: 1; color: var(--danger-red); }
+    .add-topic-inline { display: flex; gap: 6px; margin-top: 8px; }
+    .add-topic-inline input { flex: 1; padding: 5px 10px; border: 1.5px solid var(--border-light); border-radius: var(--radius-sm); font-size: var(--font-size-xs); outline: none; }
+    .add-topic-inline input:focus { border-color: var(--primary-blue); }
+    .subject-actions { display: flex; gap: 4px; }
+    .expand-topics-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; }
+    .expand-topics-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+    .topics-section { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-light); }
+    .add-subject-row {
+      display: flex; gap: 8px; margin-top: var(--spacing-sm);
+      padding: 8px; border: 1.5px dashed var(--border-medium); border-radius: var(--radius-md);
+      background: transparent; cursor: pointer; transition: all var(--transition-fast);
+    }
+    .add-subject-row:hover { border-color: var(--primary-blue); background: rgba(37,99,235,0.03); }
+    .add-subject-row input { flex: 1; border: none; outline: none; background: transparent; font-size: var(--font-size-sm); color: var(--text-primary); }
+    .add-subject-row input::placeholder { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">ELSA<span>Study Agent</span></div>
+    <nav class="nav-menu">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a href="subjects.html" class="nav-item active"><span class="nav-icon">📚</span>Subjects</a>
+      <a href="study-flow.html" class="nav-item"><span class="nav-icon">🔄</span>Study Flow</a>
+      <a href="analytics.html" class="nav-item"><span class="nav-icon">📊</span>Analytics</a>
+      <a href="todo.html" class="nav-item"><span class="nav-icon">✅</span>To-Do List</a>
+      <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user-btn">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-username">User</div>
+          <div class="sidebar-user-role">Logout</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Goals & Subjects</h1>
+          <p>Organize what you study — Goals → Subjects → Topics</p>
+        </div>
+        <div class="page-header-actions">
+          <button id="add-goal-btn" class="btn btn-primary">+ Add Goal</button>
+        </div>
+      </div>
+
+      <div id="subjects-container" class="subjects-grid">
+        <!-- Goal blocks rendered here -->
+      </div>
+
+      <div id="empty-goals" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">🎯</div>
+        <h3>No Goals Yet</h3>
+        <p>Add a goal (like JEE, NEET, or Boards) to get started!</p>
+        <button class="btn btn-primary" style="margin-top:var(--spacing-md);" onclick="document.getElementById('add-goal-btn').click()">Add Your First Goal</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Add Goal Modal -->
+<div id="add-goal-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h2>🎯 Add New Goal</h2>
+    <div class="form-group">
+      <label>Goal Name</label>
+      <input type="text" id="goal-name-input" class="input-field" placeholder="e.g. JEE, NEET, CAT, Boards..." maxlength="40">
+    </div>
+    <div class="form-group">
+      <label>Preset Goals</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <button class="btn btn-sm btn-secondary preset-goal" data-val="JEE">JEE</button>
+        <button class="btn btn-sm btn-secondary preset-goal" data-val="NEET">NEET</button>
+        <button class="btn btn-sm btn-secondary preset-goal" data-val="UPSC">UPSC</button>
+        <button class="btn btn-sm btn-secondary preset-goal" data-val="CAT">CAT</button>
+        <button class="btn btn-sm btn-secondary preset-goal" data-val="Board Exams">Board Exams</button>
+        <button class="btn btn-sm btn-secondary preset-goal" data-val="Personal">Personal</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button id="cancel-goal-btn" class="btn btn-secondary">Cancel</button>
+      <button id="save-goal-btn" class="btn btn-primary">Add Goal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Goal Modal -->
+<div id="edit-goal-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h2>✏️ Edit Goal</h2>
+    <input type="hidden" id="edit-goal-id">
+    <div class="form-group">
+      <label>Goal Name</label>
+      <input type="text" id="edit-goal-name-input" class="input-field" maxlength="40">
+    </div>
+    <div class="modal-actions">
+      <button id="cancel-edit-goal-btn" class="btn btn-secondary">Cancel</button>
+      <button id="save-edit-goal-btn" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script>
+class SubjectsManager {
+  constructor() {
+    if (!auth.requireAuth()) return;
+    storage.init(auth.getCurrentUser());
+    this._expandedSubjects = {};
+    this._init();
+    this._setupSidebar();
+  }
+
+  _setupSidebar() {
+    const profile = storage.loadJSON('profile');
+    document.getElementById('sidebar-username').textContent = profile.username;
+    document.getElementById('sidebar-avatar').textContent = profile.username.charAt(0).toUpperCase();
+    document.getElementById('sidebar-user-btn').addEventListener('click', () => { if(confirm('Logout?')) auth.logout(); });
+  }
+
+  _init() {
+    this._render();
+    this._bindModalEvents();
+  }
+
+  _render() {
+    const goals = storage.loadJSON('goals');
+    const subjects = storage.loadJSON('subjects');
+    const topics = storage.loadJSON('topics');
+    const container = document.getElementById('subjects-container');
+    const empty = document.getElementById('empty-goals');
+
+    if (!goals.goals.length) {
+      container.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    container.innerHTML = goals.goals.map((g, gi) => {
+      const goalSubjects = subjects.subjects.filter(s => s.goal === g.name);
+      const totalTopics = topics.topics.filter(t => t.goal === g.name).length;
+      const grad = utils.generateGradient(g.name);
+
+      return `
+        <div class="goal-block" data-goal="${g.name}">
+          <div class="goal-header">
+            <div class="goal-header-left">
+              <div class="goal-icon" style="background:${grad};">${g.name.charAt(0)}</div>
+              <div>
+                <div class="goal-name">${g.name}</div>
+                <div class="goal-meta">${goalSubjects.length} subject${goalSubjects.length!==1?'s':''} · ${totalTopics} topic${totalTopics!==1?'s':''}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button class="btn btn-sm btn-ghost edit-goal-btn" data-goal="${g.name}" data-id="${g.id}">✏️</button>
+              <button class="btn btn-sm btn-ghost delete-goal-btn" data-goal="${g.name}" style="color:var(--danger-red);">🗑️</button>
+            </div>
+          </div>
+          <div class="goal-body">
+            <div class="subjects-list" id="subjects-list-${g.id}">
+              ${goalSubjects.map(s => this._renderSubjectRow(s, topics, g.name)).join('')}
+            </div>
+            <div class="add-subject-row" data-goal="${g.name}">
+              <span>+</span>
+              <input type="text" class="add-subject-input" placeholder="Add subject (e.g. Physics, Maths)..." maxlength="50" data-goal="${g.name}">
+              <button class="btn btn-sm btn-primary save-subject-btn" data-goal="${g.name}" style="display:none;">Add</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    this._bindSubjectEvents();
+  }
+
+  _renderSubjectRow(s, topics, goalName) {
+    const subjectTopics = topics.topics.filter(t => t.goal === goalName && t.subject === s.name);
+    const expanded = this._expandedSubjects[s.id] || false;
+    return `
+      <div class="subject-row" data-subject-id="${s.id}">
+        <div class="subject-dot" style="background:${utils.generateGradient(s.name).split(',')[1]?.trim()||'#2563EB'};"></div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="subject-name">${s.name}</span>
+            <span class="subject-topics-count">${subjectTopics.length} topic${subjectTopics.length!==1?'s':''}</span>
+            <button class="expand-topics-btn" data-sid="${s.id}">${expanded?'▲ Hide':'▼ Topics'}</button>
+          </div>
+          <div class="topics-section" id="topics-${s.id}" style="display:${expanded?'block':'none'};">
+            <div class="topics-mini" id="topics-chips-${s.id}">
+              ${subjectTopics.map(t => `
+                <div class="topic-chip">
+                  ${t.name}
+                  <span class="remove-topic" data-tid="${t.id}" title="Remove">✕</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="add-topic-inline">
+              <input type="text" placeholder="Add topic..." maxlength="60" data-goal="${goalName}" data-subject="${s.name}" class="add-topic-input">
+              <button class="btn btn-sm btn-secondary save-topic-btn" data-goal="${goalName}" data-subject="${s.name}">+ Add</button>
+            </div>
+          </div>
+        </div>
+        <div class="subject-actions">
+          <button class="btn btn-sm btn-ghost delete-subject-btn" data-sid="${s.id}" style="color:var(--danger-red);font-size:14px;">🗑️</button>
+        </div>
+      </div>
+    `;
+  }
+
+  _bindSubjectEvents() {
+    // Add subject inline
+    document.querySelectorAll('.add-subject-input').forEach(input => {
+      const saveBtn = input.parentElement.querySelector('.save-subject-btn');
+      input.addEventListener('focus', () => saveBtn.style.display = 'inline-flex');
+      input.addEventListener('blur', () => setTimeout(() => { if (!saveBtn.matches(':focus')) saveBtn.style.display = 'none'; }, 200));
+      input.addEventListener('keypress', (e) => { if (e.key === 'Enter') this._addSubject(input.dataset.goal, input.value, input); });
+      saveBtn.addEventListener('click', () => this._addSubject(input.dataset.goal, input.value, input));
+    });
+
+    // Toggle topics
+    document.querySelectorAll('.expand-topics-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sid = btn.dataset.sid;
+        const section = document.getElementById(`topics-${sid}`);
+        this._expandedSubjects[sid] = !this._expandedSubjects[sid];
+        section.style.display = this._expandedSubjects[sid] ? 'block' : 'none';
+        btn.textContent = this._expandedSubjects[sid] ? '▲ Hide' : '▼ Topics';
+      });
+    });
+
+    // Add topic
+    document.querySelectorAll('.save-topic-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = btn.previousElementSibling;
+        this._addTopic(btn.dataset.goal, btn.dataset.subject, input.value, input);
+      });
+    });
+    document.querySelectorAll('.add-topic-input').forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') this._addTopic(input.dataset.goal, input.dataset.subject, input.value, input);
+      });
+    });
+
+    // Remove topic
+    document.querySelectorAll('.remove-topic').forEach(btn => {
+      btn.addEventListener('click', () => this._removeTopic(btn.dataset.tid));
+    });
+
+    // Delete subject
+    document.querySelectorAll('.delete-subject-btn').forEach(btn => {
+      btn.addEventListener('click', () => this._deleteSubject(btn.dataset.sid));
+    });
+
+    // Edit / delete goal
+    document.querySelectorAll('.edit-goal-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('edit-goal-id').value = btn.dataset.id;
+        document.getElementById('edit-goal-name-input').value = btn.dataset.goal;
+        document.getElementById('edit-goal-modal').classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.delete-goal-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (confirm(`Delete goal "${btn.dataset.goal}" and all its subjects/topics? Study history is kept.`)) {
+          this._deleteGoal(btn.dataset.goal);
+        }
+      });
+    });
+  }
+
+  _addSubject(goalName, name, inputEl) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const subjects = storage.loadJSON('subjects');
+    if (subjects.subjects.some(s => s.goal === goalName && s.name.toLowerCase() === trimmed.toLowerCase())) {
+      utils.showToast('Subject already exists', 'warning'); return;
+    }
+    subjects.subjects.push({ id: utils.generateUUID(), goal: goalName, name: trimmed, created: new Date().toISOString() });
+    storage.saveJSON('subjects', subjects);
+    inputEl.value = '';
+    this._render();
+    utils.showToast(`Subject "${trimmed}" added!`, 'success');
+  }
+
+  _addTopic(goalName, subjectName, name, inputEl) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const topics = storage.loadJSON('topics');
+    if (topics.topics.some(t => t.goal === goalName && t.subject === subjectName && t.name.toLowerCase() === trimmed.toLowerCase())) {
+      utils.showToast('Topic already exists', 'warning'); return;
+    }
+    const subjectId = storage.loadJSON('subjects').subjects.find(s => s.goal === goalName && s.name === subjectName)?.id;
+    topics.topics.push({ id: utils.generateUUID(), goal: goalName, subject: subjectName, subjectId, name: trimmed, created: new Date().toISOString() });
+    storage.saveJSON('topics', topics);
+
+    // Mark subject expanded
+    if (subjectId) this._expandedSubjects[subjectId] = true;
+    inputEl.value = '';
+    this._render();
+  }
+
+  _removeTopic(topicId) {
+    const topics = storage.loadJSON('topics');
+    topics.topics = topics.topics.filter(t => t.id !== topicId);
+    storage.saveJSON('topics', topics);
+    this._render();
+  }
+
+  _deleteSubject(subjectId) {
+    const subjects = storage.loadJSON('subjects');
+    const sub = subjects.subjects.find(s => s.id === subjectId);
+    if (!sub) return;
+    if (!confirm(`Delete subject "${sub.name}"? Topics will also be removed.`)) return;
+    subjects.subjects = subjects.subjects.filter(s => s.id !== subjectId);
+    storage.saveJSON('subjects', subjects);
+    const topics = storage.loadJSON('topics');
+    topics.topics = topics.topics.filter(t => t.subjectId !== subjectId);
+    storage.saveJSON('topics', topics);
+    this._render();
+    utils.showToast(`Subject "${sub.name}" deleted.`, 'info');
+  }
+
+  _deleteGoal(goalName) {
+    const goals = storage.loadJSON('goals');
+    goals.goals = goals.goals.filter(g => g.name !== goalName);
+    storage.saveJSON('goals', goals);
+    const subjects = storage.loadJSON('subjects');
+    subjects.subjects = subjects.subjects.filter(s => s.goal !== goalName);
+    storage.saveJSON('subjects', subjects);
+    const topics = storage.loadJSON('topics');
+    topics.topics = topics.topics.filter(t => t.goal !== goalName);
+    storage.saveJSON('topics', topics);
+    this._render();
+    utils.showToast(`Goal "${goalName}" deleted.`, 'info');
+  }
+
+  _bindModalEvents() {
+    document.getElementById('add-goal-btn').addEventListener('click', () => {
+      document.getElementById('goal-name-input').value = '';
+      document.getElementById('add-goal-modal').classList.add('active');
+      setTimeout(() => document.getElementById('goal-name-input').focus(), 300);
+    });
+
+    document.querySelectorAll('.preset-goal').forEach(btn => {
+      btn.addEventListener('click', () => document.getElementById('goal-name-input').value = btn.dataset.val);
+    });
+
+    document.getElementById('cancel-goal-btn').addEventListener('click', () => document.getElementById('add-goal-modal').classList.remove('active'));
+
+    document.getElementById('save-goal-btn').addEventListener('click', () => {
+      const name = document.getElementById('goal-name-input').value.trim();
+      if (!name) { utils.showToast('Enter a goal name', 'warning'); return; }
+      const goals = storage.loadJSON('goals');
+      if (goals.goals.some(g => g.name.toLowerCase() === name.toLowerCase())) {
+        utils.showToast('Goal already exists', 'warning'); return;
+      }
+      goals.goals.push({ id: utils.generateUUID(), name, created: new Date().toISOString() });
+      storage.saveJSON('goals', goals);
+      document.getElementById('add-goal-modal').classList.remove('active');
+      this._render();
+      utils.showToast(`Goal "${name}" added! 🎯`, 'success');
+    });
+
+    document.getElementById('goal-name-input').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('save-goal-btn').click(); });
+
+    document.getElementById('cancel-edit-goal-btn').addEventListener('click', () => document.getElementById('edit-goal-modal').classList.remove('active'));
+
+    document.getElementById('save-edit-goal-btn').addEventListener('click', () => {
+      const newName = document.getElementById('edit-goal-name-input').value.trim();
+      const id = document.getElementById('edit-goal-id').value;
+      if (!newName) return;
+      const goals = storage.loadJSON('goals');
+      const goal = goals.goals.find(g => g.id === id);
+      if (!goal) return;
+      const oldName = goal.name;
+      goal.name = newName;
+      storage.saveJSON('goals', goals);
+      // Update all references
+      ['subjects', 'topics'].forEach(file => {
+        const data = storage.loadJSON(file);
+        const key = file === 'subjects' ? 'subjects' : 'topics';
+        data[key].forEach(item => { if (item.goal === oldName) item.goal = newName; });
+        storage.saveJSON(file, data);
+      });
+      document.getElementById('edit-goal-modal').classList.remove('active');
+      this._render();
+      utils.showToast('Goal updated!', 'success');
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => new SubjectsManager());
+</script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ELSA — Elite Learning & Study Agent
+  Copyright (c) 2025 Divyanshu Karn
+  Licensed under CC BY-NC-ND 4.0
+  https://creativecommons.org/licenses/by-nc-nd/4.0/
+  Unauthorized modification, redistribution, or commercial use is prohibited.
+-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — ELSA</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/charts.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<div class="app-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">ELSA<span>Study Agent</span></div>
+    <nav class="nav-menu">
+      <a href="dashboard.html" class="nav-item active"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a href="subjects.html" class="nav-item"><span class="nav-icon">📚</span>Subjects</a>
+      <a href="study-flow.html" class="nav-item"><span class="nav-icon">🔄</span>Study Flow</a>
+      <a href="analytics.html" class="nav-item"><span class="nav-icon">📊</span>Analytics</a>
+      <a href="todo.html" class="nav-item"><span class="nav-icon">✅</span>To-Do List</a>
+      <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user-btn">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebar-username">User</div>
+          <div class="sidebar-user-role">Logout</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-greeting" id="greeting">Good Morning! 👋</div>
+      <div class="header-right">
+        <div class="stats-ribbon">
+          <span>✅ <span id="tasks-done">0</span> tasks done</span>
+          <span id="current-date">—</span>
+          <span class="live-clock" id="live-clock">00:00:00</span>
+        </div>
+        <div class="user-avatar" id="user-avatar" title="Logout" style="cursor:pointer;">U</div>
+      </div>
+    </header>
+
+    <!-- Quote -->
+    <section class="quote-section">
+      <blockquote id="quote-text">"Loading..."</blockquote>
+      <cite id="quote-author">—</cite>
+    </section>
+
+    <!-- Currently Studying Banner -->
+    <section id="currently-studying-banner" class="studying-banner" style="display:none;">
+      <span class="studying-icon">📚</span>
+      <span id="studying-text" class="studying-text">—</span>
+      <div class="banner-actions">
+        <button id="switch-study-btn" class="btn btn-sm btn-secondary">Switch</button>
+        <button id="stop-study-btn" class="btn btn-sm btn-danger">Stop</button>
+      </div>
+    </section>
+
+    <!-- Dashboard Body -->
+    <div class="dashboard-body">
+      <!-- Stats Row -->
+      <div class="grid-3" style="margin-bottom:0;">
+        <div class="stat-card">
+          <div class="stat-card-value" id="stat-today">0h 0m</div>
+          <div class="stat-card-label">Studied Today</div>
+          <div class="stat-card-icon">📖</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" id="stat-streak">0</div>
+          <div class="stat-card-label">Day Streak 🔥</div>
+          <div class="stat-card-icon">🔥</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" id="stat-total">0h</div>
+          <div class="stat-card-label">Total Study Time</div>
+          <div class="stat-card-icon">⏱️</div>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="dashboard-grid">
+        <!-- Timer Card -->
+        <div class="card timer-card">
+          <h2>Pomodoro Timer</h2>
+          <div class="timer-circle">
+            <svg class="timer-ring-svg" width="240" height="240" viewBox="0 0 240 240">
+              <circle class="timer-ring-bg" cx="120" cy="120" r="110" stroke-dasharray="691.15" stroke-dashoffset="0"/>
+              <circle class="timer-ring" cx="120" cy="120" r="110" stroke-dasharray="691.15" stroke-dashoffset="0" transform="rotate(-90 120 120)"/>
+            </svg>
+            <div class="timer-center">
+              <div class="timer-display" id="timer-display">25:00</div>
+              <div class="timer-mode" id="timer-mode">STUDY SESSION</div>
+            </div>
+          </div>
+
+          <div class="timer-controls">
+            <label>Study</label>
+            <input type="number" id="study-duration" value="25" min="1" max="180">
+            <label style="margin-left:8px;">Break</label>
+            <input type="number" id="break-duration" value="5" min="1" max="60">
+            <span style="font-size:var(--font-size-xs);color:var(--text-muted)">min</span>
+          </div>
+
+          <div class="timer-actions">
+            <button id="timer-start" class="btn btn-primary" style="flex:1;">▶ Start</button>
+            <button id="timer-pause" class="btn btn-secondary" style="flex:1;display:none;">⏸ Pause</button>
+            <button id="timer-reset" class="btn btn-ghost btn-icon" title="Reset">↺</button>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+            <div class="session-dots">
+              <div class="session-dot" id="dot-1"></div>
+              <div class="session-dot" id="dot-2"></div>
+              <div class="session-dot" id="dot-3"></div>
+              <div class="session-dot" id="dot-4"></div>
+            </div>
+            <div class="session-counter" id="session-counter">0 / 4 sessions</div>
+          </div>
+
+          <button id="start-studying-btn" class="btn btn-primary btn-block" style="margin-top:var(--spacing-sm);">🎯 Start Studying</button>
+        </div>
+
+        <!-- To-Do Widget -->
+        <div class="card todo-widget">
+          <div class="card-header">
+            <h2>Today's Tasks</h2>
+            <a href="todo.html" class="btn btn-ghost btn-sm">Manage →</a>
+          </div>
+          <div id="todo-list-container">
+            <div class="empty-state" style="padding:var(--spacing-lg) 0;">
+              <div class="empty-state-icon">📋</div>
+              <p>No tasks for today.<br>Add some in To-Do!</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:var(--spacing-sm);">
+            <div class="todo-progress" id="todo-progress">0/0 completed</div>
+            <div id="todo-progress-bar" class="progress-bar" style="width:120px;">
+              <div class="progress-fill" id="todo-fill" style="width:0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Chart -->
+        <div class="card chart-card">
+          <h2>Today's Breakdown</h2>
+          <div class="chart-container">
+            <canvas id="daily-pie-chart" width="220" height="220"></canvas>
+          </div>
+          <div class="pie-legend" id="pie-legend"></div>
+          <div style="margin-top:var(--spacing-sm);font-size:var(--font-size-xs);color:var(--text-muted);text-align:center;">
+            Target: <span id="target-range">5–10h</span>/day
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Bar Chart -->
+      <div class="card">
+        <div class="card-header">
+          <h2>This Week's Study Hours</h2>
+          <a href="analytics.html" class="btn btn-ghost btn-sm">Full Analytics →</a>
+        </div>
+        <canvas id="weekly-bar-chart" width="800" height="200" style="max-width:100%;"></canvas>
+        <div style="display:flex;gap:var(--spacing-md);margin-top:var(--spacing-sm);font-size:var(--font-size-xs);">
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:#EF4444;border-radius:2px;display:inline-block;"></span>Below target</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:#10B981;border-radius:2px;display:inline-block;"></span>On target</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:#1D4ED8;border-radius:2px;display:inline-block;"></span>Exceeded</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===== NOISE FAB ===== -->
+<div class="noise-fab">
+  <button id="noise-toggle" class="fab-btn" title="Focus Sounds">🎵</button>
+  <div id="noise-options" class="noise-options" style="display:none;">
+    <strong style="font-size:var(--font-size-xs);color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Focus Sounds</strong>
+    <div style="height:8px;"></div>
+    <div class="noise-option"><span>🌊 Brown Noise</span><button class="btn btn-sm btn-secondary btn-noise" data-type="brown">Play</button></div>
+    <div class="noise-option"><span>🌸 Pink Noise</span><button class="btn btn-sm btn-secondary btn-noise" data-type="pink">Play</button></div>
+    <div class="noise-option"><span>📻 White Noise</span><button class="btn btn-sm btn-secondary btn-noise" data-type="white">Play</button></div>
+    <div class="noise-volume">
+      <span>Vol:</span>
+      <input type="range" id="noise-volume" min="0" max="100" value="30">
+    </div>
+    <button id="noise-close" class="btn btn-ghost btn-sm btn-block" style="margin-top:8px;">Close</button>
+  </div>
+</div>
+
+<!-- ===== START STUDYING MODAL ===== -->
+<div id="start-study-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="study-modal-header">
+      <div class="study-modal-icon">🎯</div>
+      <div>
+        <h2>Start Studying</h2>
+        <p style="color:var(--text-secondary);font-size:var(--font-size-sm);">Select what you want to study</p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Goal *</label>
+      <select id="study-goal-select" class="select-field">
+        <option value="">— Select Goal —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Subject *</label>
+      <select id="study-subject-select" class="select-field" disabled>
+        <option value="">— Select Subject —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Topic <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+      <select id="study-topic-select" class="select-field" disabled>
+        <option value="">No specific topic</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button id="cancel-study-btn" class="btn btn-secondary">Cancel</button>
+      <button id="begin-session-btn" class="btn btn-primary">Begin Session 🚀</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/quote-loader.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/analytics-engine.js"></script>
+<script>
+class DashboardManager {
+  constructor() {
+    if (!auth.requireAuth()) return;
+    this.username = auth.getCurrentUser();
+    storage.init(this.username);
+    this._init();
+  }
+
+  _init() {
+    this._setupSidebar();
+    this._loadGreeting();
+    this._loadQuote();
+    this._loadStats();
+    this._loadCurrentlyStudying();
+    this._loadTodoWidget();
+    this._loadDailyChart();
+    this._loadWeeklyChart();
+    this._startClock();
+    this._setupNoiseGenerator();
+    this._setupStartStudyModal();
+    this._loadTargetRange();
+  }
+
+  _setupSidebar() {
+    const profile = storage.loadJSON('profile');
+    const name = profile.username || this.username;
+    document.getElementById('sidebar-username').textContent = name;
+    document.getElementById('sidebar-avatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+
+    const logoutHandler = () => {
+      if (confirm('Logout?')) auth.logout();
+    };
+    document.getElementById('sidebar-user-btn').addEventListener('click', logoutHandler);
+    document.getElementById('user-avatar').addEventListener('click', logoutHandler);
+  }
+
+  _loadGreeting() {
+    const profile = storage.loadJSON('profile');
+    document.getElementById('greeting').textContent = utils.getGreeting(profile.username);
+  }
+
+  _loadQuote() {
+    quoteLoader.loadQuote().then(q => {
+      document.getElementById('quote-text').textContent = `"${q.text}"`;
+      document.getElementById('quote-author').textContent = `— ${q.author}`;
+    });
+  }
+
+  _loadStats() {
+    const studyData = storage.loadJSON('study-data');
+    const today = utils.getCurrentDate();
+    const todayMinutes = studyData.sessions
+      .filter(s => s.completed && s.date === today)
+      .reduce((sum, s) => sum + (s.duration||0), 0);
+
+    document.getElementById('stat-today').textContent = utils.formatDuration(todayMinutes);
+
+    const streak = analyticsEngine.getCurrentStreak(studyData.sessions);
+    document.getElementById('stat-streak').textContent = streak;
+
+    const profile = storage.loadJSON('profile');
+    document.getElementById('stat-total').textContent = `${Math.floor((profile.totalStudyMinutes||0)/60)}h`;
+  }
+
+  _loadTargetRange() {
+    const settings = storage.loadJSON('settings');
+    document.getElementById('target-range').textContent = `${settings.targets?.dailyMin||5}–${settings.targets?.dailyMax||10}h`;
+  }
+
+  _loadCurrentlyStudying() {
+    const raw = sessionStorage.getItem('elsa_currentlyStudying');
+    const banner = document.getElementById('currently-studying-banner');
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s.goal) {
+        banner.style.display = 'flex';
+        let txt = `Currently studying: ${s.goal} → ${s.subject}`;
+        if (s.topic) txt += ` → ${s.topic}`;
+        document.getElementById('studying-text').textContent = txt;
+        return;
+      }
+    }
+    banner.style.display = 'none';
+  }
+
+  loadTodoWidget() { this._loadTodoWidget(); }
+  _loadTodoWidget() {
+    const todo = storage.loadJSON('todo');
+    const today = utils.getCurrentDate();
+    const todayEntry = todo.todos.find(t => t.date === today);
+    const container = document.getElementById('todo-list-container');
+
+    if (!todayEntry || !todayEntry.tasks || !todayEntry.tasks.length) {
+      container.innerHTML = `<div class="empty-state" style="padding:var(--spacing-md) 0;"><div class="empty-state-icon" style="font-size:32px;">📋</div><p style="font-size:var(--font-size-sm);color:var(--text-muted);">No tasks today. <a href="todo.html" style="color:var(--primary-blue);">Add some!</a></p></div>`;
+      document.getElementById('todo-progress').textContent = '0/0 completed';
+      document.getElementById('todo-fill').style.width = '0%';
+      document.getElementById('tasks-done').textContent = '0';
+      return;
+    }
+
+    const tasks = todayEntry.tasks;
+    const completed = tasks.filter(t => t.completed).length;
+    const pct = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
+
+    container.innerHTML = tasks.map(t => `
+      <div class="todo-item">
+        <input type="checkbox" ${t.completed?'checked':''} data-tid="${t.id}">
+        <span class="${t.completed?'completed':''}" style="flex:1;">${t.text}</span>
+        ${t.subject ? `<span class="badge badge-blue" style="font-size:10px;">${t.subject}</span>` : ''}
+      </div>
+    `).join('');
+
+    container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const tid = e.target.dataset.tid;
+        const entry = storage.loadJSON('todo');
+        const en = entry.todos.find(t => t.date === today);
+        if (en) {
+          const task = en.tasks.find(t => t.id === tid);
+          if (task) {
+            task.completed = e.target.checked;
+            storage.saveJSON('todo', entry);
+            this._loadTodoWidget();
+            this._loadStats();
+          }
+        }
+      });
+    });
+
+    document.getElementById('todo-progress').textContent = `${completed}/${tasks.length} completed`;
+    document.getElementById('todo-fill').style.width = `${pct}%`;
+    document.getElementById('tasks-done').textContent = completed;
+  }
+
+  loadDailyChart() { this._loadDailyChart(); }
+  _loadDailyChart() {
+    const studyData = storage.loadJSON('study-data');
+    const today = utils.getCurrentDate();
+    const todaySessions = studyData.sessions.filter(s => s.completed && s.date === today);
+    const studyMin = todaySessions.reduce((sum, s) => sum + (s.duration||0), 0);
+    const totalMinInDay = 24 * 60;
+    const nonStudy = totalMinInDay - studyMin;
+
+    // Build subject breakdown
+    const bySubject = analyticsEngine.getSubjectBreakdown(todaySessions.filter(s=>s.completed), today, today);
+
+    let data, labels, colors;
+    if (bySubject.length > 1) {
+      data = bySubject.map(s => s.minutes);
+      labels = bySubject.map(s => s.subject);
+      colors = bySubject.map((_, i) => ['#2563EB','#7C3AED','#10B981','#F59E0B','#EF4444'][i % 5]);
+      data.push(nonStudy);
+      labels.push('Rest');
+      colors.push('#E2E8F0');
+    } else {
+      data = [studyMin, nonStudy];
+      labels = ['Study', 'Rest'];
+      colors = ['#2563EB', '#E2E8F0'];
+    }
+
+    charts.renderPieChart('daily-pie-chart', data, labels, colors);
+
+    // Legend
+    const legend = document.getElementById('pie-legend');
+    legend.innerHTML = labels.map((l, i) => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${colors[i]};"></div>
+        <span>${l} (${utils.formatDuration(data[i])})</span>
+      </div>
+    `).join('');
+  }
+
+  _loadWeeklyChart() {
+    const studyData = storage.loadJSON('study-data');
+    const settings = storage.loadJSON('settings');
+    const dailyData = analyticsEngine.getDailyData(studyData.sessions, 7);
+    const target = settings.targets || { dailyMin: 5, dailyMax: 10 };
+
+    charts.renderBarChart('weekly-bar-chart', dailyData, target.dailyMin, target.dailyMax);
+  }
+
+  _startClock() {
+    const update = () => {
+      const now = new Date();
+      document.getElementById('current-date').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      document.getElementById('live-clock').textContent = now.toLocaleTimeString('en-US', { hour12: true });
+    };
+    update();
+    setInterval(update, 1000);
+  }
+
+  _setupNoiseGenerator() {
+    const toggle = document.getElementById('noise-toggle');
+    const options = document.getElementById('noise-options');
+    toggle.addEventListener('click', () => {
+      options.style.display = options.style.display === 'none' ? 'block' : 'none';
+    });
+    document.getElementById('noise-close').addEventListener('click', () => {
+      options.style.display = 'none';
+    });
+    document.getElementById('noise-volume').addEventListener('input', (e) => {
+      audio.setVolume(e.target.value / 100);
+    });
+    document.querySelectorAll('.btn-noise').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const type = e.target.dataset.type;
+        const isPlaying = audio.isPlaying(type);
+        document.querySelectorAll('.btn-noise').forEach(b => b.textContent = 'Play');
+        if (!isPlaying) {
+          audio.playNoise(type);
+          e.target.textContent = 'Pause';
+          document.getElementById('noise-toggle').textContent = '🎵';
+        } else {
+          audio.stopNoise();
+          document.getElementById('noise-toggle').textContent = '🎵';
+        }
+      });
+    });
+  }
+
+  _setupStartStudyModal() {
+    const modal = document.getElementById('start-study-modal');
+    const goalSel = document.getElementById('study-goal-select');
+    const subjSel = document.getElementById('study-subject-select');
+    const topicSel = document.getElementById('study-topic-select');
+
+    const openModal = () => {
+      this._populateGoals();
+      modal.classList.add('active');
+    };
+
+    document.getElementById('start-studying-btn').addEventListener('click', openModal);
+    document.getElementById('switch-study-btn').addEventListener('click', openModal);
+    document.getElementById('stop-study-btn').addEventListener('click', () => {
+      sessionStorage.removeItem('elsa_currentlyStudying');
+      this._loadCurrentlyStudying();
+      utils.showToast('Study session stopped.', 'info');
+    });
+
+    document.getElementById('cancel-study-btn').addEventListener('click', () => modal.classList.remove('active'));
+
+    goalSel.addEventListener('change', () => this._populateSubjects(goalSel.value));
+    subjSel.addEventListener('change', () => this._populateTopics(goalSel.value, subjSel.value));
+
+    document.getElementById('begin-session-btn').addEventListener('click', () => {
+      const goal = goalSel.value;
+      const subject = subjSel.value;
+      const topic = topicSel.value;
+      if (!goal || !subject) { utils.showToast('Please select goal and subject', 'warning'); return; }
+      sessionStorage.setItem('elsa_currentlyStudying', JSON.stringify({ goal, subject, topic }));
+      modal.classList.remove('active');
+      this._loadCurrentlyStudying();
+      utils.showToast(`Studying: ${goal} → ${subject}${topic?' → '+topic:''}`, 'success');
+    });
+  }
+
+  _populateGoals() {
+    const goals = storage.loadJSON('goals');
+    const sel = document.getElementById('study-goal-select');
+    sel.innerHTML = '<option value="">— Select Goal —</option>';
+    goals.goals.forEach(g => sel.innerHTML += `<option value="${g.name}">${g.name}</option>`);
+    document.getElementById('study-subject-select').disabled = true;
+    document.getElementById('study-topic-select').disabled = true;
+    document.getElementById('study-subject-select').innerHTML = '<option value="">— Select Subject —</option>';
+    document.getElementById('study-topic-select').innerHTML = '<option value="">No specific topic</option>';
+
+    if (!goals.goals.length) {
+      utils.showToast('No goals yet! Add goals in the Subjects page first.', 'warning');
+    }
+  }
+
+  _populateSubjects(goalName) {
+    const subjects = storage.loadJSON('subjects');
+    const sel = document.getElementById('study-subject-select');
+    sel.innerHTML = '<option value="">— Select Subject —</option>';
+    const filtered = subjects.subjects.filter(s => s.goal === goalName);
+    filtered.forEach(s => sel.innerHTML += `<option value="${s.name}">${s.name}</option>`);
+    sel.disabled = !filtered.length;
+    document.getElementById('study-topic-select').disabled = true;
+    document.getElementById('study-topic-select').innerHTML = '<option value="">No specific topic</option>';
+  }
+
+  _populateTopics(goalName, subjectName) {
+    const topics = storage.loadJSON('topics');
+    const sel = document.getElementById('study-topic-select');
+    sel.innerHTML = '<option value="">No specific topic</option>';
+    const filtered = topics.topics.filter(t => t.goal === goalName && t.subject === subjectName);
+    filtered.forEach(t => sel.innerHTML += `<option value="${t.name}">${t.name}</option>`);
+    sel.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.dashboard = new DashboardManager();
+});
+</script>
+</body>
+</html>

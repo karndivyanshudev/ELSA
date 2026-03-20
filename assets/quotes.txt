@@ -1,0 +1,120 @@
+1|The only way to do great work is to love what you do.|Steve Jobs
+2|Success is not final, failure is not fatal: it is the courage to continue that counts.|Winston Churchill
+3|Believe you can and you're halfway there.|Theodore Roosevelt
+4|The future belongs to those who believe in the beauty of their dreams.|Eleanor Roosevelt
+5|It does not matter how slowly you go as long as you do not stop.|Confucius
+6|The secret of getting ahead is getting started.|Mark Twain
+7|Don't watch the clock; do what it does. Keep going.|Sam Levenson
+8|You are never too old to set another goal or dream a new dream.|C.S. Lewis
+9|The harder you work for something, the greater you'll feel when you achieve it.|Anonymous
+10|Dream big and dare to fail.|Norman Vaughan
+11|What you get by achieving your goals is not as important as what you become.|Henry David Thoreau
+12|You don't have to be great to start, but you have to start to be great.|Zig Ziglar
+13|Education is the most powerful weapon which you can use to change the world.|Nelson Mandela
+14|The beautiful thing about learning is that no one can take it away from you.|B.B. King
+15|An investment in knowledge pays the best interest.|Benjamin Franklin
+16|Live as if you were to die tomorrow. Learn as if you were to live forever.|Mahatma Gandhi
+17|The more that you read, the more things you will know.|Dr. Seuss
+18|A person who never made a mistake never tried anything new.|Albert Einstein
+19|The mind is not a vessel to be filled but a fire to be kindled.|Plutarch
+20|Intelligence plus character — that is the goal of true education.|Martin Luther King Jr.
+21|Study hard what interests you most in the most undisciplined way possible.|Richard Feynman
+22|The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.|Brian Herbert
+23|Education is not the filling of a pail, but the lighting of a fire.|William Butler Yeats
+24|The expert in anything was once a beginner.|Helen Hayes
+25|Success is the sum of small efforts repeated day in and day out.|Robert Collier
+26|Motivation is what gets you started. Habit is what keeps you going.|Jim Ryun
+27|I find that the harder I work, the more luck I seem to have.|Thomas Jefferson
+28|Don't let what you cannot do interfere with what you can do.|John Wooden
+29|Hard work beats talent when talent does not work hard.|Tim Notke
+30|The best time to plant a tree was 20 years ago. The second best time is now.|Chinese Proverb
+31|It always seems impossible until it is done.|Nelson Mandela
+32|Success is walking from failure to failure with no loss of enthusiasm.|Winston Churchill
+33|The only person you are destined to become is the person you decide to be.|Ralph Waldo Emerson
+34|Strive not to be a success, but rather to be of value.|Albert Einstein
+35|Well done is better than well said.|Benjamin Franklin
+36|You miss 100 percent of the shots you don't take.|Wayne Gretzky
+37|People who succeed have momentum. The more they succeed, the more they want to succeed.|Tony Robbins
+38|The secret of success is to do the common thing uncommonly well.|John D. Rockefeller Jr.
+39|I never dreamed about success; I worked for it.|Estee Lauder
+40|There is no elevator to success. You have to take the stairs.|Unknown
+41|Learning is not attained by chance; it must be sought with ardor and attended to with diligence.|Abigail Adams
+42|Develop a passion for learning. If you do, you will never cease to grow.|Anthony J. D'Angelo
+43|The wisest mind has something yet to learn.|George Santayana
+44|Self-education is the only kind of education there is.|Isaac Asimov
+45|Education is not preparation for life; education is life itself.|John Dewey
+46|Change is the end result of all true learning.|Leo Buscaglia
+47|The roots of education are bitter, but the fruit is sweet.|Aristotle
+48|The function of education is to teach one to think intensively and critically.|Martin Luther King Jr.
+49|Wonder is the beginning of wisdom.|Socrates
+50|The true sign of intelligence is not knowledge but imagination.|Albert Einstein
+51|Your time is limited, so don't waste it living someone else's life.|Steve Jobs
+52|Either write something worth reading or do something worth writing.|Benjamin Franklin
+53|There is nothing permanent except change.|Heraclitus
+54|The journey of a thousand miles begins with one step.|Lao Tzu
+55|Success usually comes to those who are too busy to be looking for it.|Henry David Thoreau
+56|The mind that opens to a new idea never comes back to its original size.|Albert Einstein
+57|Perfection is not attainable, but if we chase it we can catch excellence.|Vince Lombardi
+58|To handle yourself, use your head; to handle others, use your heart.|Eleanor Roosevelt
+59|Never let the fear of striking out keep you from playing the game.|Babe Ruth
+60|You can't use up creativity. The more you use, the more you have.|Maya Angelou
+61|Do what you can, with what you have, where you are.|Theodore Roosevelt
+62|If you do what you have always done, you will get what you have always gotten.|Tony Robbins
+63|I have learned over the years that when one's mind is made up, this diminishes fear.|Rosa Parks
+64|Nothing is impossible — the word itself says I'm possible.|Audrey Hepburn
+65|When everything seems to be going against you, remember that the airplane takes off against the wind.|Henry Ford
+66|Whether you think you can or you think you can't, you're right.|Henry Ford
+67|Either you run the day, or the day runs you.|Jim Rohn
+68|Knowledge is power.|Francis Bacon
+69|In the middle of every difficulty lies opportunity.|Albert Einstein
+70|Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.|Thomas Edison
+71|If you can dream it, you can do it.|Walt Disney
+72|Believe in yourself and all that you are.|Christian D. Larson
+73|You must be the change you wish to see in the world.|Mahatma Gandhi
+74|A successful man is one who can lay a firm foundation with the bricks others have thrown at him.|David Brinkley
+75|Successful people do what unsuccessful people are not willing to do.|Jim Rohn
+76|Success seems to be connected with action. Successful people keep moving.|Conrad Hilton
+77|The more I live, the more I learn. The more I learn, the more I realize how little I know.|Michel Legrand
+78|Happiness is not something ready made. It comes from your own actions.|Dalai Lama
+79|What lies behind us and what lies before us are tiny matters compared to what lies within us.|Ralph Waldo Emerson
+80|Life is what happens when you are busy making other plans.|John Lennon
+81|Yesterday is history, tomorrow is a mystery, today is a gift.|Eleanor Roosevelt
+82|In three words I can sum up everything I've learned about life: it goes on.|Robert Frost
+83|Too many of us are not living our dreams because we are living our fears.|Les Brown
+84|If you want to live a happy life, tie it to a goal, not to people or things.|Albert Einstein
+85|Your talent is God's gift to you. What you do with it is your gift back to God.|Leo Buscaglia
+86|Nothing great was ever achieved without enthusiasm.|Ralph Waldo Emerson
+87|Challenges are what make life interesting. Overcoming them is what makes life meaningful.|Joshua Marine
+88|You only live once, but if you do it right, once is enough.|Mae West
+89|In order to be irreplaceable, one must always be different.|Coco Chanel
+90|Winning isn't everything, but wanting to win is.|Vince Lombardi
+91|You may be disappointed if you fail, but you are doomed if you don't try.|Beverly Sills
+92|Remember that not getting what you want is sometimes a wonderful stroke of luck.|Dalai Lama
+93|You cannot swim for new horizons until you have courage to lose sight of the shore.|William Faulkner
+94|It does not matter how slowly you go as long as you do not stop.|Confucius
+95|When you reach the end of your rope, tie a knot in it and hang on.|Franklin D. Roosevelt
+96|Always remember that you are absolutely unique. Just like everyone else.|Margaret Mead
+97|Don't judge each day by the harvest you reap but by the seeds that you plant.|Robert Louis Stevenson
+98|The most difficult thing is the decision to act, the rest is merely tenacity.|Amelia Earhart
+99|How wonderful it is that nobody need wait a single moment before starting to improve the world.|Anne Frank
+100|An unexamined life is not worth living.|Socrates
+101|First, have a definite, clear practical ideal — a goal, an objective.|Aristotle
+102|A truly rich man is one whose children run into his arms even when his hands are empty.|Unknown
+103|It is never too late to be what you might have been.|George Eliot
+104|You become what you believe.|Oprah Winfrey
+105|The most common way people give up their power is by thinking they don't have any.|Alice Walker
+106|The way to get started is to quit talking and begin doing.|Walt Disney
+107|If life were predictable, it would cease to be life and be without flavor.|Eleanor Roosevelt
+108|If you look at what you have in life, you'll always have more.|Oprah Winfrey
+109|If you want to achieve greatness, stop asking for permission.|Anonymous
+110|Things work out best for those who make the best of how things work out.|John Wooden
+111|To live a creative life, we must lose our fear of being wrong.|Anonymous
+112|If you are not willing to risk the usual, you will have to settle for the ordinary.|Jim Rohn
+113|Trust because you are willing to accept the risk, not because it is safe or certain.|Anonymous
+114|Take up one idea, make that one idea your life — think of it, dream of it, live on that idea.|Swami Vivekananda
+115|All our dreams can come true, if we have the courage to pursue them.|Walt Disney
+116|Good things come to people who wait, but better things come to those who go out and get them.|Anonymous
+117|If you do not go after what you want, you will never have it.|Nora Roberts
+118|You are never too old to set another goal or dream a new dream.|C.S. Lewis
+119|We become what we think about most of the time, and that is the strangest secret.|Earl Nightingale
+120|The only place where success comes before work is in the dictionary.|Vidal Sassoon
