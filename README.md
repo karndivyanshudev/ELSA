@@ -53,28 +53,4 @@ Violations will be reported as DMCA copyright infringement.
 ---
 
 *Built for students who want a powerful, private, offline study tracker.*
-```
 
-**Step 4** — Replace `YOUR NAME` with your name
-
-**Step 5** — Click **Commit changes**
-
----
-
-## PHASE 6: Enable GitHub Pages
-
-This makes ELSA usable directly from a browser link — no download needed.
-
-**Step 1** — Click **Settings** tab in your repository
-
-**Step 2** — In the left sidebar, click **Pages**
-
-**Step 3** — Under **Source** click the dropdown → select **Deploy from a branch**
-
-**Step 4** — Under **Branch** select **main** and **/ (root)**
-
-**Step 5** — Click **Save**
-
-**Step 6** — Wait 3-5 minutes then refresh
-
-**Step 7** — You'll see a box saying:
