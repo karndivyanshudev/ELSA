@@ -1,4 +1,4 @@
-© 2025 [YOUR NAME] — All Rights Reserved
+© 2025 Divyanshu Karn — All Rights Reserved
 Licensed under CC BY-NC-ND 4.0
 https://creativecommons.org/licenses/by-nc-nd/4.0/
 
