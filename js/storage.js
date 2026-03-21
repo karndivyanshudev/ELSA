@@ -99,7 +99,8 @@ class StorageManager {
       },
       'settings': {
         targets: { dailyMin: 5, dailyMax: 10 },
-        preferences: { soundEnabled: true, timerSound: 'beep', theme: 'light', notifications: false },
+        preferences: { soundEnabled: true, timerSound: 'beep', notifications: false },
+        appearance: { theme: 'default', font: 'default' },
         studyDuration: CONFIG.DEFAULT_STUDY_DURATION,
         breakDuration: CONFIG.DEFAULT_BREAK_DURATION,
         updatedAt: new Date().toISOString()

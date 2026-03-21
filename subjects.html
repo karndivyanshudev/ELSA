@@ -13,6 +13,7 @@
   <title>Subjects — ELSA</title>
   <link rel="stylesheet" href="css/global.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/responsive.css">
   <style>
     .subjects-grid { display: flex; flex-direction: column; gap: var(--spacing-lg); }
@@ -79,6 +80,7 @@
       <a href="study-flow.html" class="nav-item"><span class="nav-icon">🔄</span>Study Flow</a>
       <a href="analytics.html" class="nav-item"><span class="nav-icon">📊</span>Analytics</a>
       <a href="todo.html" class="nav-item"><span class="nav-icon">✅</span>To-Do List</a>
+      <a href="pdf-reader.html" class="nav-item"><span class="nav-icon">📖</span>PDF Reader</a>
       <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
     </nav>
     <div class="sidebar-footer">
@@ -164,11 +166,13 @@
 <script src="js/utils.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/themes.js"></script>
 <script>
 class SubjectsManager {
   constructor() {
     if (!auth.requireAuth()) return;
     storage.init(auth.getCurrentUser());
+    themeManager.loadAndApply();
     this._expandedSubjects = {};
     this._init();
     this._setupSidebar();

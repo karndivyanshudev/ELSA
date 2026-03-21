@@ -192,6 +192,27 @@ class Utils {
     }
     return str.toString();
   }
+
+  // HTML-escape a string
+  htmlEscape(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Validate password strength
+  validatePassword(pw) {
+    if (!pw) return 'Password cannot be empty';
+    if (pw.length < 4) return 'Password must be at least 4 characters';
+    return null; // valid
+  }
+
+  // Debounce helper
+  debounce(fn, delay) {
+    let t;
+    return function(...args) {
+      clearTimeout(t);
+      t = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
 }
 
 window.utils = new Utils();

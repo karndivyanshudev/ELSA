@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+  ELSA — Elite Learning & Study Agent
+  Copyright (c) 2025 Divyanshu Karn
+  Licensed under CC BY-NC-ND 4.0
+  https://creativecommons.org/licenses/by-nc-nd/4.0/
+  Unauthorized modification, redistribution, or commercial use is prohibited.
+-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Reader — ELSA</title>
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    /* Override body to allow full-height PDF layout */
+    body, html { height: 100%; overflow: hidden; }
+    .app-container { height: 100vh; overflow: hidden; }
+    .main-content { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Page header shrinks */
+    .page-header-pdf {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1.5rem;
+      border-bottom: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
+    .page-header-pdf h1 { font-size: 1.1rem; font-weight: 700; }
+    .page-header-pdf h1 span { color: var(--primary-blue); }
+    #pdf-filename-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <div class="logo">ELSA<span>Study Agent</span></div>
+    <nav class="nav-menu">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a href="subjects.html" class="nav-item"><span class="nav-icon">📚</span>Subjects</a>
+      <a href="study-flow.html" class="nav-item"><span class="nav-icon">🔄</span>Study Flow</a>
+      <a href="analytics.html" class="nav-item"><span class="nav-icon">📊</span>Analytics</a>
+      <a href="todo.html" class="nav-item"><span class="nav-icon">✅</span>To-Do List</a>
+      <a href="pdf-reader.html" class="nav-item active"><span class="nav-icon">📖</span>PDF Reader</a>
+      <a href="settings.html" class="nav-item"><span class="nav-icon">⚙️</span>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user-btn">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div><div class="sidebar-user-name" id="sidebar-username">User</div><div class="sidebar-user-role">Logout</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <!-- Header bar -->
+    <div class="page-header-pdf">
+      <div>
+        <h1>PDF <span>Reader</span></h1>
+        <div id="pdf-filename-label">No document loaded</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <label class="btn btn-primary btn-sm" style="cursor:pointer;">
+          📂 Open PDF
+          <input type="file" accept="application/pdf" id="pdf-file-input" onchange="loadPDF(event)" style="display:none;">
+        </label>
+      </div>
+    </div>
+
+    <!-- PDF layout: TOC + thumbs + reading area -->
+    <div class="pdf-outer" style="flex:1;">
+      <!-- Control bar -->
+      <div class="pdf-topbar" id="pdf-topbar">
+        <button class="pdf-tb-btn" id="pdf-toc-btn" onclick="pdfToggleTOC()" title="Table of Contents">☰ TOC</button>
+        <button class="pdf-tb-btn" id="pdf-thumbs-btn" onclick="pdfToggleThumbs()" title="Thumbnails">⊞ Thumbs</button>
+        <div class="pdf-tb-sep"></div>
+        <button class="pdf-tb-btn" onclick="pdfPrevPage()" title="Previous page">◀ Prev</button>
+        <input type="number" class="pdf-page-input" id="pdf-page-num" value="1" min="1" onchange="pdfGoToPage(this.value)" title="Current page">
+        <span style="font-size:.75rem;color:var(--text-secondary);">/ <span id="pdf-total-pages">—</span></span>
+        <button class="pdf-tb-btn" onclick="pdfNextPage()" title="Next page">Next ▶</button>
+        <div class="pdf-tb-sep"></div>
+        <button class="pdf-tb-btn" onclick="pdfZoomOut()" title="Zoom out">🔍−</button>
+        <span class="pdf-zoom-val" id="pdf-zoom-val">100%</span>
+        <button class="pdf-tb-btn" onclick="pdfZoomIn()" title="Zoom in">🔍+</button>
+        <button class="pdf-tb-btn" onclick="pdfFitWidth()" title="Fit width">⟷ Fit</button>
+        <div class="pdf-tb-sep"></div>
+        <button class="pdf-tb-btn" id="pdf-onepage-btn" onclick="pdfSetMode('native')" title="Native browser PDF view">🌐 Native</button>
+        <button class="pdf-tb-btn active" id="pdf-twopage-btn" onclick="pdfSetMode('twopage')" title="Two-page book view">▭▭ 2-Page</button>
+        <button class="pdf-tb-btn" id="pdf-scrollmode-btn" onclick="pdfSetMode('scroll')" title="Continuous scroll">↕ Scroll</button>
+        <div class="pdf-tb-sep"></div>
+        <button class="pdf-tb-btn" id="pdf-dark-btn" onclick="pdfToggleDark()" title="Invert / dark mode">🌙 Dark</button>
+        <button class="pdf-tb-btn" id="pdf-hl-btn" onclick="pdfToggleHighlight()" title="Highlight mode">🖊 Highlight</button>
+        <div class="pdf-tb-sep"></div>
+        <button class="pdf-tb-btn" onclick="pdfToggleSearch()" title="Search in PDF (Ctrl+F)">🔍 Search</button>
+        <div class="pdf-tb-sep"></div>
+        <button class="pdf-tb-btn" onclick="pdfFullscreen()" title="Fullscreen">⛶ Full</button>
+      </div>
+
+      <!-- Inner: TOC | thumbs | pages -->
+      <div class="pdf-inner" id="pdf-inner">
+        <!-- TOC panel -->
+        <div class="pdf-toc-panel" id="pdf-toc-panel">
+          <div class="pdf-toc-header">Contents</div>
+          <div id="pdf-toc-list"><div class="pdf-toc-item" style="color:var(--text-muted);">Open a PDF to see contents</div></div>
+        </div>
+
+        <!-- Thumbnail strip -->
+        <div class="pdf-thumb-strip" id="pdf-thumb-strip"></div>
+
+        <!-- Main reading column -->
+        <div class="pdf-reading-area">
+          <!-- Floating search bar -->
+          <div class="pdf-search-bar" id="pdf-search-bar">
+            <input class="pdf-search-input" type="text" id="pdf-search-input" placeholder="Search in PDF…"
+              onkeydown="if(event.key==='Enter')pdfSearch()">
+            <button class="pdf-tb-btn" onclick="pdfSearch()">Find</button>
+            <button class="pdf-tb-btn" onclick="pdfToggleSearch()" style="color:var(--danger-red);">✕</button>
+          </div>
+
+          <!-- PDF body (renders pages here) -->
+          <div class="pdf-body" id="pdf-body">
+            <div class="pdf-empty">
+              <div class="pdf-upload-zone" onclick="document.getElementById('pdf-file-input').click()">
+                <div class="pdf-upload-icon">📄</div>
+                <div style="font-size:1rem;font-weight:600;margin-bottom:.3rem;">Open a PDF</div>
+                <div style="font-size:.82rem;color:var(--text-muted);">Click to browse or drag & drop a PDF file</div>
+                <div style="font-size:.75rem;color:var(--text-muted);margin-top:.5rem;">Keyboard: ← → Page Up/Down · Ctrl+F Search · +/- Zoom</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/themes.js"></script>
+<script>
+/* ═══════════════════════════════════════════
+   ELSA PDF READER — ENGINE
+═══════════════════════════════════════════ */
+
+// ── Setup sidebar ──
+document.addEventListener('DOMContentLoaded', () => {
+  if (!auth.requireAuth()) return;
+  storage.init(auth.getCurrentUser());
+  themeManager.loadAndApply();
+  const p = storage.loadJSON('profile');
+  document.getElementById('sidebar-username').textContent = p.username;
+  document.getElementById('sidebar-avatar').textContent = p.username.charAt(0).toUpperCase();
+  document.getElementById('sidebar-user-btn').addEventListener('click', () => { if(confirm('Logout?')) auth.logout(); });
+});
+
+// ── PDF.js CDN ──
+const PDFJS_CDN    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let pdfDoc           = null;
+let pdfCurrentPage   = 1;
+let pdfZoom          = 1.0;
+let pdfMode          = 'twopage'; // 'twopage' | 'scroll' | 'native'
+let pdfBlobUrl       = null;
+let pdfDarkMode      = false;
+let pdfHighlightMode = false;
+let pdfRendering     = false;
+let pdfPageCount     = 0;
+let pdfThumbsLoaded  = false;
+
+// ── Ensure PDF.js loaded ──
+async function ensurePDFJS() {
+  if (window.pdfjsLib) return;
+  await new Promise(res => {
+    const s = document.createElement('script');
+    s.src = PDFJS_CDN;
+    s.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; setTimeout(res, 80); };
+    document.head.appendChild(s);
+  });
+}
+
+// ── Load PDF file ──
+async function loadPDF(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('pdf-filename-label').textContent = file.name;
+  if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
+  pdfBlobUrl = URL.createObjectURL(file);
+
+  const body = document.getElementById('pdf-body');
+  body.innerHTML = `<div class="pdf-loading">
+    <div style="font-size:2.5rem;">📄</div>
+    <div>Loading <strong>${utils.htmlEscape(file.name)}</strong>…</div>
+    <div class="pdf-progress"><div class="pdf-progress-bar" id="pdf-pb" style="width:0%"></div></div>
+  </div>`;
+
+  await ensurePDFJS();
+
+  const ab = await file.arrayBuffer();
+  const task = pdfjsLib.getDocument({ data: ab });
+  task.onProgress = p => {
+    if (p.total) document.getElementById('pdf-pb').style.width = Math.round(p.loaded / p.total * 100) + '%';
+  };
+  pdfDoc         = await task.promise;
+  pdfPageCount   = pdfDoc.numPages;
+  pdfCurrentPage = 1;
+  pdfZoom        = 1.0;
+  pdfThumbsLoaded = false;
+
+  document.getElementById('pdf-total-pages').textContent = pdfPageCount;
+  document.getElementById('pdf-page-num').max = pdfPageCount;
+  document.getElementById('pdf-zoom-val').textContent = '100%';
+
+  // TOC
+  const outline = await pdfDoc.getOutline().catch(() => []);
+  renderPDFTOC(outline || []);
+
+  // Scroll listener for scroll mode
+  document.getElementById('pdf-body').onscroll = () => {
+    if (pdfMode !== 'scroll' || !pdfDoc) return;
+    const body2 = document.getElementById('pdf-body');
+    const midY = body2.scrollTop + body2.clientHeight * 0.3;
+    for (let p = pdfPageCount; p >= 1; p--) {
+      const pg = document.getElementById('pdf-page-' + p);
+      if (!pg) continue;
+      if (pg.offsetTop <= midY) {
+        if (pdfCurrentPage !== p) {
+          pdfCurrentPage = p;
+          document.getElementById('pdf-page-num').value = p;
+          document.querySelectorAll('.pdf-thumb').forEach(t => t.classList.remove('active'));
+          const th = document.getElementById('pdf-thumb-' + p);
+          if (th) th.classList.add('active');
+        }
+        break;
+      }
+    }
+  };
+
+  await renderPDFPages();
+  setTimeout(() => loadPDFThumbs(), 600);
+  utils.showToast(`📄 Loaded ${pdfPageCount} pages`, 'success');
+}
+
+// ── Render pages based on current mode ──
+async function renderPDFPages() {
+  if (!pdfDoc || pdfRendering) return;
+  pdfRendering = true;
+
+  const body = document.getElementById('pdf-body');
+  body.innerHTML = '';
+  body.style.background = pdfDarkMode ? '#1a1a1a' : '';
+
+  if (pdfMode === 'native') {
+    // iframe native browser PDF
+    body.className = 'pdf-body';
+    body.style.padding = '0';
+    if (pdfBlobUrl) {
+      const iframe = document.createElement('iframe');
+      iframe.src = pdfBlobUrl;
+      iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;flex:1;';
+      body.appendChild(iframe);
+    } else {
+      body.innerHTML = '<div class="pdf-empty"><div style="color:var(--text-muted)">Open a PDF first</div></div>';
+    }
+    pdfRendering = false;
+    return;
+  }
+
+  if (pdfMode === 'scroll') {
+    body.className = 'pdf-body scroll-mode';
+    for (let p = 1; p <= pdfPageCount; p++) {
+      const page = await pdfDoc.getPage(p);
+      const vp   = page.getViewport({ scale: pdfZoom });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width; canvas.height = vp.height;
+      const ctx = canvas.getContext('2d');
+      if (pdfDarkMode) ctx.filter = 'invert(1) hue-rotate(180deg)';
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+      const wrap = document.createElement('div');
+      wrap.className = 'pdf-page-wrap';
+      wrap.id = 'pdf-page-' + p;
+      wrap.style.width = vp.width + 'px';
+      wrap.appendChild(canvas);
+      body.appendChild(wrap);
+    }
+    const target = document.getElementById('pdf-page-' + pdfCurrentPage);
+    if (target) body.scrollTop = target.offsetTop;
+
+  } else {
+    // TWO-PAGE book mode
+    body.className = 'pdf-body';
+    const renderWrap = async (pageNum) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'pdf-page-wrap';
+      if (pageNum > pdfPageCount) {
+        const refVp = (await pdfDoc.getPage(1)).getViewport({ scale: pdfZoom });
+        wrap.style.cssText = `width:${refVp.width}px;height:${refVp.height}px;background:var(--bg-surface);`;
+        return wrap;
+      }
+      wrap.id = 'pdf-page-' + pageNum;
+      const page = await pdfDoc.getPage(pageNum);
+      const vp = page.getViewport({ scale: pdfZoom });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width; canvas.height = vp.height;
+      const ctx = canvas.getContext('2d');
+      if (pdfDarkMode) ctx.filter = 'invert(1) hue-rotate(180deg)';
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+      wrap.style.width = vp.width + 'px';
+      wrap.appendChild(canvas);
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'text-align:center;font-size:.65rem;color:#999;padding:.3rem;background:#fff;';
+      lbl.textContent = 'Page ' + pageNum;
+      wrap.appendChild(lbl);
+      return wrap;
+    };
+    const [left, right] = await Promise.all([
+      renderWrap(pdfCurrentPage),
+      renderWrap(pdfCurrentPage + 1)
+    ]);
+    const spine = document.createElement('div');
+    spine.className = 'pdf-book-spine';
+    body.appendChild(left);
+    body.appendChild(spine);
+    body.appendChild(right);
+  }
+
+  document.getElementById('pdf-page-num').value = pdfCurrentPage;
+  pdfRendering = false;
+}
+
+// ── Navigation ──
+function pdfPrevPage() {
+  if (!pdfDoc) return;
+  const step = pdfMode === 'twopage' ? 2 : 1;
+  if (pdfCurrentPage <= 1) return;
+  pdfCurrentPage = Math.max(1, pdfCurrentPage - step);
+  renderPDFPages();
+}
+function pdfNextPage() {
+  if (!pdfDoc) return;
+  const step = pdfMode === 'twopage' ? 2 : 1;
+  if (pdfCurrentPage >= pdfPageCount) return;
+  pdfCurrentPage = Math.min(pdfPageCount, pdfCurrentPage + step);
+  renderPDFPages();
+}
+function pdfGoToPage(n) {
+  if (!pdfDoc) return;
+  pdfCurrentPage = Math.max(1, Math.min(pdfPageCount, parseInt(n) || 1));
+  renderPDFPages();
+}
+
+// ── Zoom ──
+function pdfZoomIn() {
+  pdfZoom = Math.min(4, pdfZoom + 0.2);
+  document.getElementById('pdf-zoom-val').textContent = Math.round(pdfZoom * 100) + '%';
+  if (pdfDoc) renderPDFPages();
+}
+function pdfZoomOut() {
+  pdfZoom = Math.max(0.3, pdfZoom - 0.2);
+  document.getElementById('pdf-zoom-val').textContent = Math.round(pdfZoom * 100) + '%';
+  if (pdfDoc) renderPDFPages();
+}
+function pdfFitWidth() {
+  if (!pdfDoc) return;
+  const body = document.getElementById('pdf-body');
+  const avail = body.clientWidth - 80;
+  pdfDoc.getPage(1).then(p => {
+    const vp = p.getViewport({ scale: 1 });
+    const pages = pdfMode === 'twopage' ? 2 : 1;
+    pdfZoom = avail / (vp.width * pages + 12);
+    document.getElementById('pdf-zoom-val').textContent = Math.round(pdfZoom * 100) + '%';
+    renderPDFPages();
+  });
+}
+
+// ── View mode ──
+function pdfSetMode(mode) {
+  pdfMode = mode;
+  updatePDFModeUI();
+  if (mode !== 'native') {
+    ['pdf-page-num','pdf-total-pages','pdf-zoom-val'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.opacity = '';
+    });
+  } else {
+    ['pdf-page-num','pdf-total-pages','pdf-zoom-val'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.opacity = '0.3';
+    });
+  }
+  if (pdfDoc) renderPDFPages();
+}
+function updatePDFModeUI() {
+  document.getElementById('pdf-onepage-btn').classList.toggle('active', pdfMode === 'native');
+  document.getElementById('pdf-twopage-btn').classList.toggle('active', pdfMode === 'twopage');
+  document.getElementById('pdf-scrollmode-btn').classList.toggle('active', pdfMode === 'scroll');
+}
+
+// ── Dark mode ──
+function pdfToggleDark() {
+  pdfDarkMode = !pdfDarkMode;
+  document.getElementById('pdf-dark-btn').classList.toggle('active', pdfDarkMode);
+  if (pdfDoc) renderPDFPages();
+}
+
+// ── Highlight ──
+function pdfToggleHighlight() {
+  pdfHighlightMode = !pdfHighlightMode;
+  document.getElementById('pdf-hl-btn').classList.toggle('active', pdfHighlightMode);
+  utils.showToast(pdfHighlightMode ? 'Highlight mode ON – select text on pages' : 'Highlight mode OFF', 'info');
+}
+
+// ── Search ──
+function pdfToggleSearch() {
+  const bar = document.getElementById('pdf-search-bar');
+  bar.classList.toggle('visible');
+  if (bar.classList.contains('visible')) document.getElementById('pdf-search-input').focus();
+}
+async function pdfSearch() {
+  const query = document.getElementById('pdf-search-input').value.trim();
+  if (!query || !pdfDoc) return;
+  utils.showToast('Searching…', 'info');
+  for (let p = 1; p <= pdfPageCount; p++) {
+    const page = await pdfDoc.getPage(p);
+    const tc   = await page.getTextContent();
+    const text = tc.items.map(i => i.str).join(' ');
+    if (text.toLowerCase().includes(query.toLowerCase())) {
+      pdfCurrentPage = p;
+      await renderPDFPages();
+      utils.showToast(`Found on page ${p} ✓`, 'success');
+      return;
+    }
+  }
+  utils.showToast('Not found in document', 'info');
+}
+
+// ── TOC ──
+function pdfToggleTOC() {
+  document.getElementById('pdf-toc-panel').classList.toggle('visible');
+  document.getElementById('pdf-toc-btn').classList.toggle('active');
+}
+function renderPDFTOC(outline) {
+  const list = document.getElementById('pdf-toc-list');
+  if (!outline || !outline.length) {
+    list.innerHTML = '<div class="pdf-toc-item" style="color:var(--text-muted);">No bookmarks found</div>';
+    return;
+  }
+  list.innerHTML = outline.map(item => `
+    <div class="pdf-toc-item" onclick="pdfGoToPage(1)">${utils.htmlEscape(item.title || 'Section')}</div>
+  `).join('');
+}
+
+// ── Thumbnails ──
+function pdfToggleThumbs() {
+  document.getElementById('pdf-thumb-strip').classList.toggle('visible');
+  document.getElementById('pdf-thumbs-btn').classList.toggle('active');
+  if (document.getElementById('pdf-thumb-strip').classList.contains('visible')) {
+    loadPDFThumbs();
+  }
+}
+async function loadPDFThumbs() {
+  if (!pdfDoc || pdfThumbsLoaded) return;
+  const strip = document.getElementById('pdf-thumb-strip');
+  strip.innerHTML = '';
+  const maxThumbs = Math.min(pdfPageCount, 60);
+  for (let p = 1; p <= maxThumbs; p++) {
+    const page = await pdfDoc.getPage(p);
+    const vp = page.getViewport({ scale: 0.15 });
+    const canvas = document.createElement('canvas');
+    canvas.width = vp.width; canvas.height = vp.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+    const thumb = document.createElement('div');
+    thumb.className = 'pdf-thumb' + (p === pdfCurrentPage ? ' active' : '');
+    thumb.id = 'pdf-thumb-' + p;
+    thumb.onclick = () => {
+      pdfCurrentPage = p;
+      renderPDFPages();
+      document.querySelectorAll('.pdf-thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+    };
+    thumb.appendChild(canvas);
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'font-size:.55rem;text-align:center;color:#999;padding:.1rem;';
+    lbl.textContent = p;
+    thumb.appendChild(lbl);
+    strip.appendChild(thumb);
+  }
+  pdfThumbsLoaded = true;
+}
+
+// ── Fullscreen ──
+function pdfFullscreen() {
+  const el = document.getElementById('pdf-inner');
+  if (!document.fullscreenElement) el.requestFullscreen().catch(() => {});
+  else document.exitFullscreen();
+}
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'PageDown') pdfNextPage();
+  if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   pdfPrevPage();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f') { e.preventDefault(); pdfToggleSearch(); }
+  if (e.key === '+' || e.key === '=') pdfZoomIn();
+  if (e.key === '-') pdfZoomOut();
+  if (e.key === 'Escape') document.getElementById('pdf-search-bar').classList.remove('visible');
+});
+
+// ── Drag & Drop ──
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    loadPDF({ target: { files: [file] } });
+  }
+});
+
+// Expose htmlEscape helper used above
+if (typeof utils !== 'undefined') {
+  utils.htmlEscape = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+</script>
+</body>
+</html>
