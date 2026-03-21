@@ -2,7 +2,7 @@
 
 [![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
-> **© 2025 YOUR NAME — All Rights Reserved**
+> **© 2025 Divyanshu Karn — All Rights Reserved**
 
 A complete offline study management application built with
 vanilla HTML, CSS, and JavaScript. No frameworks. No server.
