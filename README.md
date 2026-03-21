@@ -52,7 +52,7 @@ Violations will be reported as DMCA copyright infringement.
 
 ## How to Use
 
-1. Open `index.html` in Chrome, Firefox, or Edge
+1. Open `index.html` in Chrome, Firefox, or Edge, or directly visit https://studywithelsa.netlify.app/ , https://karndivyanshudev.github.io/ELSA/
 2. Create your profile
 3. Add your Goals and Subjects
 4. Start studying!
