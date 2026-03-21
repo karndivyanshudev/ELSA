@@ -42,7 +42,9 @@ Violations will be reported as DMCA copyright infringement.
 - 📴 100% offline
 
 ---
-#Check Releases to get the latest beta release with more themes and fonts, BUT LIMITED TRACKING FUNCTIONALITY
+
+##Check Releases to get the latest beta release with more themes and fonts, BUT LIMITED TRACKING FUNCTIONALITY
+
 ---
 
 ## How to Use
