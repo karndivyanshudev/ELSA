@@ -30,16 +30,19 @@ Violations will be reported as DMCA copyright infringement.
 
 ## Features
 
-- 🎬 Animated intro screen
-- 👤 Multi-user system with password protection
-- ⏱️ Pomodoro timer with auto study/break switching
-- 📚 Goals → Subjects → Topics organizer
-- 📊 Analytics with daily/weekly/monthly charts
-- 📝 Study Flow journal
-- ✅ Calendar-based To-Do list
-- 🎵 Focus noise generator
+- 🎬 Animated intro screen with particle mesh
+- 👤 Multi-user system with password protection & right-click context menu
+- ⏱️ Pomodoro timer with auto study/break switching and session dots
+- 📚 Goals → Subjects → Topics organizer with inline editing
+- 📊 Analytics with daily/weekly/monthly charts, goal breakdown & session log
+- 📝 Study Flow journal with inline editing and CSV export
+- ✅ Calendar-based To-Do list with priority tags and progress tracking
+- 🎵 Focus noise generator (Brown, Pink & White noise via Web Audio API)
 - 💾 JSON backup and CSV export
-- 📴 100% offline
+- 🎨 27 themes — Cosmos, Arctic, GTA 6, Cyberpunk, Win11, Arch Linux, and more
+- ✍️ 8 font families — from clean grotesque to editorial serif and terminal mono
+- 📖 PDF Reader with two-page book view, scroll mode, dark mode, zoom, search, TOC, and thumbnails
+- 📴 100% offline — no server, no internet, no ads
 
 ---
 
