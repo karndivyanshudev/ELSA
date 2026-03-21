@@ -43,7 +43,7 @@ Violations will be reported as DMCA copyright infringement.
 
 ---
 
-##Check Releases to get the latest beta release with more themes and fonts, BUT LIMITED TRACKING FUNCTIONALITY
+## Check Releases to get the latest beta release with more themes and fonts, BUT LIMITED TRACKING FUNCTIONALITY
 
 ---
 
